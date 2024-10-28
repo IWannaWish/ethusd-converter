@@ -40,7 +40,7 @@ func main() {
 		http := srv.InitHttpServer()
 		log.Info().Msgf("HTTP server starting on %s:%d", cfg.HttpServer.Host, cfg.HttpServer.Port)
 		srv.StartHttpServer(http)
-		err := http.ListenAndServe()
+		err = http.ListenAndServe()
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error starting HTTP server")
 		}
