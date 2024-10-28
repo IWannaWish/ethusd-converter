@@ -1,2 +1,11 @@
 healthcheck.pb.go healthcheck_grpc.pb.go: healthcheck.proto
-	protoc -I. -I.. --go_opt=paths=source_relative --go-grpc_opt=paths=source_relative --go-grpc_out=. --grpc-gateway_out=. --grpc-gateway_opt paths=source_relative --grpc-gateway_opt generate_unbound_methods=true --go_out=. healthcheck.proto
+	protoc -I. -I.. \
+	--go_opt=paths=source_relative \
+	--go-grpc_opt=paths=source_relative \
+	--go-grpc_out=./gen  \
+	--grpc-gateway_out=./gen   \
+	--grpc-gateway_opt paths=source_relative  \
+	--grpc-gateway_opt generate_unbound_methods=true  \
+	--php_out=./gen  \
+	--plugin=protoc-gen-grpc=`which grpc_php_plugin` \
+	--go_out=./gen healthcheck.proto

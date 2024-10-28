@@ -2,7 +2,7 @@ package server
 
 import (
 	"context"
-	healthpb "github.com/TimRutte/api/proto/healthcheck"
+	healthpb "github.com/TimRutte/api/proto/healthcheck/gen"
 )
 
 type HealthCheck struct {

@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	apipb "github.com/TimRutte/api/proto/api"
+	apipb "github.com/TimRutte/api/proto/api/gen"
 	"github.com/golang/protobuf/ptypes/timestamp"
 )
 

@@ -2,7 +2,7 @@ package server
 
 import (
 	"context"
-	apipb "github.com/TimRutte/api/proto/api"
+	apipb "github.com/TimRutte/api/proto/api/gen"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"strconv"
