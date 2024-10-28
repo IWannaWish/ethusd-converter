@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	versionWrapper "github.com/TimRutte/ureg/cmd/ureg"
-	"github.com/TimRutte/ureg/internal/version"
+	versionWrapper "github.com/TimRutte/api/cmd/api"
+	"github.com/TimRutte/api/internal/version"
 	"github.com/stretchr/testify/assert"
 )
 
