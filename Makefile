@@ -50,11 +50,15 @@ tools: .FORCE
 	@echo "getting tools"
 	go generate tools/*.go
 
-docker-compose-op:
+docker-compose-up:
 	docker compose up -d
 
 docker-build: tools
 	docker build -f dockerfiles/Dockerfile-app -t "${BIN_NAME}:latest" .
 
 docker-run:
-	docker run "${BIN_NAME}:latest"
+	docker run --name "${BIN_NAME}_container" "${BIN_NAME}:latest"
+
+docker-stop:
+	docker stop "${BIN_NAME}_container" || true
+	docker rm "${BIN_NAME}_container" || true

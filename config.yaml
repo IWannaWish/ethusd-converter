@@ -1,0 +1,5 @@
+grpcServer:
+  enabled: true
+  host: "localhost"
+  port: "50052"
+  tls: false
