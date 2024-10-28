@@ -10,7 +10,7 @@ This repository provides a template for implementing a gRPC API in Go, which can
 - [Building and Running](#building-and-running)
 - [Testing](#testing)
 - [Contributing](#contributing)
-- [License](#license)
+- [License](#license) 
 
 ## Features
 
