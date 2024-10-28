@@ -2,6 +2,11 @@ package tools
 
 import "fmt"
 
-func main() {
+// RunMigrations starts the migrations process.
+func RunMigrations() {
 	fmt.Println("Starting the migrations...")
+}
+
+func main() {
+	RunMigrations()
 }

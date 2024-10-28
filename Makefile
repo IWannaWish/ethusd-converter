@@ -43,8 +43,11 @@ coverage-func:
 clean:
 	@if [ -f "${BIN_NAME}" ]; then rm "${BIN_NAME}"; fi
 
-setup-githooks:
+githooks-install:
 	pre-commit install
+
+githooks-uninstall:
+	pre-commit uninstall
 
 tools: .FORCE
 	@echo "getting tools"
