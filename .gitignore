@@ -50,9 +50,6 @@ Thumbs.db
 # Logs
 *.log
 
-build/bootstrap
-build/main.zip
-
 # Terraform
 *.tfstate
 *.tfstate.*
