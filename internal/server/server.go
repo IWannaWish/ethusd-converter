@@ -50,6 +50,7 @@ func (s *Server) InitGrpcServer(grpcOptions ...grpc.ServerOption) (net.Listener,
 	// Register services
 	s.registerServices(grpcServer)
 
+	// Register reflection service on gRPC server
 	reflection.Register(grpcServer)
 
 	return lis, grpcServer

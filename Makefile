@@ -57,7 +57,7 @@ docker-build: tools
 	docker build -f dockerfiles/Dockerfile-app -t "${BIN_NAME}:latest" .
 
 docker-run:
-	docker run --name "${BIN_NAME}_container" "${BIN_NAME}:latest"
+	docker run -p 50052:50052 --name "${BIN_NAME}_container" "${BIN_NAME}:latest"
 
 docker-stop:
 	docker stop "${BIN_NAME}_container" || true

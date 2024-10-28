@@ -29,7 +29,7 @@ func main() {
 	// Start the gRPC server
 	if cfg.GrpcServer.Enabled {
 		lis, s := srv.InitGrpcServer()
-		go srv.StartGrpcServer(lis, s)
+		srv.StartGrpcServer(lis, s)
 		log.Info().Msgf("gRPC server started on %s:%d", cfg.GrpcServer.Host, cfg.GrpcServer.Port)
 	} else {
 		log.Info().Msg("gRPC server is disabled")
