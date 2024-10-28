@@ -3,3 +3,9 @@ grpcServer:
   host: "localhost"
   port: "50052"
   tls: false
+
+httpServer:
+  enabled: true
+  host: "localhost"
+  port: "8099"
+  tls: false

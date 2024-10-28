@@ -28,10 +28,24 @@ func main() {
 
 	// Start the gRPC server
 	if cfg.GrpcServer.Enabled {
-		lis, s := srv.InitGrpcServer()
-		srv.StartGrpcServer(lis, s)
-		log.Info().Msgf("gRPC server started on %s:%d", cfg.GrpcServer.Host, cfg.GrpcServer.Port)
+		lis, grpc := srv.InitGrpcServer()
+		log.Info().Msgf("gRPC server starting on %s:%d", cfg.GrpcServer.Host, cfg.GrpcServer.Port)
+		go srv.StartGrpcServer(lis, grpc)
 	} else {
 		log.Info().Msg("gRPC server is disabled")
+	}
+
+	// Start the HTTP server
+	if cfg.HttpServer.Enabled {
+		http := srv.InitHttpServer()
+		log.Info().Msgf("HTTP server starting on %s:%d", cfg.HttpServer.Host, cfg.HttpServer.Port)
+		srv.StartHttpServer(http)
+		err := http.ListenAndServe()
+		if err != nil {
+			log.Fatal().Err(err).Msg("Error starting HTTP server")
+		}
+		log.Info().Msgf("HTTP server started on %s:%d", cfg.HttpServer.Host, cfg.HttpServer.Port)
+	} else {
+		log.Info().Msg("HTTP server is disabled")
 	}
 }

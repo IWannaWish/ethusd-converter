@@ -7,6 +7,7 @@ import (
 
 type Config struct {
 	GrpcServer GrpcServerConfig `mapstructure:"grpcServer"`
+	HttpServer HttpServerConfig `mapstructure:"httpServer"`
 }
 
 type GrpcServerConfig struct {
@@ -16,6 +17,13 @@ type GrpcServerConfig struct {
 	CertFile string `mapstructure:"tls-cert"`
 	KeyFile  string `mapstructure:"tls-key"`
 	Enabled  bool   `mapstructure:"enabled"`
+}
+
+type HttpServerConfig struct {
+	Host    string `mapstructure:"host"`
+	Port    int    `mapstructure:"port"`
+	TLS     bool   `mapstructure:"tls"`
+	Enabled bool   `mapstructure:"enabled"`
 }
 
 func New(configFile string) (Config, error) {

@@ -1,12 +1,12 @@
 syntax = "proto3";
 
-package grpc.health.v1;
+package grpc.healthcheck.v1;
 
 option go_package = "github.com/TimRutte/api/proto/healthcheck";
 
-message HealthCheckRequest {
-  string service = 1;
-}
+import "google/api/annotations.proto";
+
+message HealthCheckRequest {}
 
 message HealthCheckResponse {
   enum ServingStatus {
@@ -19,5 +19,9 @@ message HealthCheckResponse {
 }
 
 service Health {
-  rpc Check(HealthCheckRequest) returns (HealthCheckResponse);
+  rpc Check(HealthCheckRequest) returns (HealthCheckResponse) {
+    option (google.api.http) = {
+      get: "/health"
+    };
+  }
 }
