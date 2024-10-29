@@ -48,8 +48,15 @@ This repository provides a template for implementing a gRPC API in Go, which can
 To build and run the application, use the following commands:
 
 ```bash
-make build
+make build-linux
 ```
+```bash
+make build-darwin
+```
+```bash
+make build-windows
+```
+
 
 ```bash
 make run
