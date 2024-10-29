@@ -14,8 +14,14 @@ all: lint test tools build
 tidy:
 	go mod tidy
 
-build:
-	CGO_ENABLED=0 GOOS=linux go build -ldflags "-X github.com/TimRutte/api/internal/version.Version=${VERSION} -X github.com/TimRutte/api/internal/version.GitCommit=${COMMIT} -X github.com/TimRutte/api/internal/version.BuildDate=${BUILD_DATE}" -o ${BIN_NAME} ./cmd/api
+build-linux:
+	CGO_ENABLED=0 GOOS=darwin go build -ldflags "-X github.com/TimRutte/api/internal/version.Version=${VERSION} -X github.com/TimRutte/api/internal/version.GitCommit=${COMMIT} -X github.com/TimRutte/api/internal/version.BuildDate=${BUILD_DATE}" -o ${BIN_NAME} ./cmd/api
+
+build-darwin:
+	CGO_ENABLED=0 GOOS=darwin go build -ldflags "-X github.com/TimRutte/api/internal/version.Version=${VERSION} -X github.com/TimRutte/api/internal/version.GitCommit=${COMMIT} -X github.com/TimRutte/api/internal/version.BuildDate=${BUILD_DATE}" -o ${BIN_NAME} ./cmd/api
+
+build-windows:
+	CGO_ENABLED=0 GOOS=windows go build -ldflags "-X github.com/TimRutte/api/internal/version.Version=${VERSION} -X github.com/TimRutte/api/internal/version.GitCommit=${COMMIT} -X github.com/TimRutte/api/internal/version.BuildDate=${BUILD_DATE}" -o ${BIN_NAME}.exe ./cmd/api
 
 run:
 	./${BIN_NAME}
