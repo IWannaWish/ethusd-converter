@@ -1,4 +1,4 @@
-package server
+package api
 
 import (
 	"context"
@@ -18,9 +18,9 @@ func (api Api) GetReport(ctx context.Context, request *apipb.GetReportRequest) (
 
 	// Validate input if needed
 	violations := make([]*errdetails.BadRequest_FieldViolation, 0, 10)
-	violations = validateExample(name, violations)
+	violations = ValidateExample(name, violations)
 
-	err := checkViolations(violations)
+	err := CheckViolations(violations)
 	if err != nil {
 		return nil, err
 	}

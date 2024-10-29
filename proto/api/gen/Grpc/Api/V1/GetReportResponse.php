@@ -109,4 +109,3 @@ class GetReportResponse extends \Google\Protobuf\Internal\Message
     }
 
 }
-

@@ -16,7 +16,7 @@ RUN git config --global \
 COPY go.mod go.sum ./
 RUN --mount=type=ssh go mod download
 RUN --mount=type=ssh make tools
-RUN make build
+RUN make build-linux
 
 # Run the tests in the container
 FROM build-stage AS run-test-stage

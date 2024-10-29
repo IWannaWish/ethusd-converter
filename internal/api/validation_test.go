@@ -1,5 +1,5 @@
 // server_test.go
-package server
+package api
 
 import (
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
@@ -11,8 +11,8 @@ import (
 func TestValidateExample(t *testing.T) {
 	// Test case where the name does NOT start with "Report"
 	name := "Example"
-	violations := []*errdetails.BadRequest_FieldViolation{}
-	violations = validateExample(name, violations)
+	var violations []*errdetails.BadRequest_FieldViolation
+	violations = ValidateExample(name, violations)
 
 	if len(violations) != 1 {
 		t.Errorf("Expected 1 violation, got %d", len(violations))
@@ -33,7 +33,7 @@ func TestValidateExample(t *testing.T) {
 	// Test case where the name starts with "Report" and no violation should occur
 	name = "ReportExample"
 	violations = []*errdetails.BadRequest_FieldViolation{}
-	violations = validateExample(name, violations)
+	violations = ValidateExample(name, violations)
 
 	if len(violations) != 0 {
 		t.Errorf("Expected 0 violations, got %d", len(violations))
@@ -48,7 +48,7 @@ func TestCheckViolations(t *testing.T) {
 			Description: "name should start with 'Report'",
 		},
 	}
-	err := checkViolations(violations)
+	err := CheckViolations(violations)
 
 	// Check if a gRPC status error is returned
 	st, ok := status.FromError(err)
@@ -85,7 +85,7 @@ func TestCheckViolations(t *testing.T) {
 
 	// Test case with no violations
 	violations = []*errdetails.BadRequest_FieldViolation{}
-	err = checkViolations(violations)
+	err = CheckViolations(violations)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}

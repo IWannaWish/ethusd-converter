@@ -10,7 +10,7 @@ This repository provides a template for implementing a gRPC API in Go, which can
 - [Building and Running](#building-and-running)
 - [Testing](#testing)
 - [Contributing](#contributing)
-- [License](#license) 
+- [License](#license)
 
 ## Features
 
@@ -41,6 +41,14 @@ This repository provides a template for implementing a gRPC API in Go, which can
 
    ```bash
    make tidy
+   ```
+
+3. Install necessary Go tools:
+
+   ```bash
+	go install golang.org/x/tools/cmd/goimports@latest
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	go install honnef.co/go/tools/cmd/staticcheck@latest
    ```
 
 ## Building and Running

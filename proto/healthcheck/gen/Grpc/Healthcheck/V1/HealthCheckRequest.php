@@ -28,4 +28,3 @@ class HealthCheckRequest extends \Google\Protobuf\Internal\Message
     }
 
 }
-

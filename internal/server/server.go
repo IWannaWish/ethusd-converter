@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	api2 "github.com/TimRutte/api/internal/api"
 	"github.com/TimRutte/api/internal/config"
 	"github.com/TimRutte/api/proto/api/gen"
 	"github.com/TimRutte/api/proto/healthcheck/gen"
@@ -92,6 +93,6 @@ func (s *Server) StartHttpServer(httpServer *http.Server) {
 }
 
 func (s *Server) registerServices(grpcServer *grpc.Server) {
-	healthcheck.RegisterHealthServer(grpcServer, HealthCheck{})
-	api.RegisterApiServer(grpcServer, Api{})
+	healthcheck.RegisterHealthServer(grpcServer, api2.HealthCheck{})
+	api.RegisterApiServer(grpcServer, api2.Api{})
 }

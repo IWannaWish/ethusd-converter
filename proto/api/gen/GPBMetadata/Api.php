@@ -22,4 +22,3 @@ class Api
         static::$is_initialized = true;
     }
 }
-

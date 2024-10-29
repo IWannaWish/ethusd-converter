@@ -136,4 +136,3 @@ class File extends \Google\Protobuf\Internal\Message
     }
 
 }
-

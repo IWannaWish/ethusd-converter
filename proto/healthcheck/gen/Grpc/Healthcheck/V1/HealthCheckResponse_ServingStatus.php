@@ -13,4 +13,3 @@ if (false) {
 }
 class_exists(HealthCheckResponse\ServingStatus::class);
 @trigger_error('Grpc\Healthcheck\V1\HealthCheckResponse_ServingStatus is deprecated and will be removed in the next major release. Use Grpc\Healthcheck\V1\HealthCheckResponse\ServingStatus instead', E_USER_DEPRECATED);
-

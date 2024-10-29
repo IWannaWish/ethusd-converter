@@ -22,4 +22,3 @@ class Healthcheck
         static::$is_initialized = true;
     }
 }
-

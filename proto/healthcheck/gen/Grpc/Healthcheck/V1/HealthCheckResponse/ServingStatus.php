@@ -58,4 +58,3 @@ class ServingStatus
 
 // Adding a class alias for backwards compatibility with the previous class name.
 class_alias(ServingStatus::class, \Grpc\Healthcheck\V1\HealthCheckResponse_ServingStatus::class);
-

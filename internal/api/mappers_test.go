@@ -1,5 +1,5 @@
 // server_test.go
-package server
+package api
 
 import (
 	"reflect"

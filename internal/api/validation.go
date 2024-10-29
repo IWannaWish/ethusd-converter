@@ -1,4 +1,4 @@
-package server
+package api
 
 import (
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func checkViolations(violations []*errdetails.BadRequest_FieldViolation) error {
+func CheckViolations(violations []*errdetails.BadRequest_FieldViolation) error {
 	if len(violations) > 0 {
 		st := status.Newf(codes.InvalidArgument, "data validation failed")
 		st, _ = st.WithDetails(&errdetails.BadRequest{FieldViolations: violations})
@@ -16,7 +16,7 @@ func checkViolations(violations []*errdetails.BadRequest_FieldViolation) error {
 	return nil
 }
 
-func validateExample(name string, violations []*errdetails.BadRequest_FieldViolation) []*errdetails.BadRequest_FieldViolation {
+func ValidateExample(name string, violations []*errdetails.BadRequest_FieldViolation) []*errdetails.BadRequest_FieldViolation {
 	if !strings.HasPrefix(name, "Report") {
 		violations = append(violations, &errdetails.BadRequest_FieldViolation{
 			Field:       "name",

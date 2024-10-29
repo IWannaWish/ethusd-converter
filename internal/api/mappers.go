@@ -1,4 +1,4 @@
-package server
+package api
 
 import (
 	apipb "github.com/TimRutte/api/proto/api/gen"

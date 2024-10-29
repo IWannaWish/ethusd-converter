@@ -82,4 +82,3 @@ class GetReportRequest extends \Google\Protobuf\Internal\Message
     }
 
 }
-

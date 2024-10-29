@@ -55,4 +55,3 @@ class HealthCheckResponse extends \Google\Protobuf\Internal\Message
     }
 
 }
-

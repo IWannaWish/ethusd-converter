@@ -1,4 +1,4 @@
-default_stages: [commit]
+default_stages: [pre-commit]
 repos:
     - repo: https://github.com/pre-commit/pre-commit-hooks
       rev: v4.4.0
@@ -13,11 +13,4 @@ repos:
       rev: v0.5.1
       hooks:
           - id: go-mod-tidy
-    - repo: https://github.com/lietu/go-pre-commit
-      rev: v0.0.1
-      hooks:
-        - id: go-fmt-goimports
-        - id: go-test
-        - id: go-vet
-        - id: golangci-lint
-        - id: staticcheck
+          - id: go-fmt
