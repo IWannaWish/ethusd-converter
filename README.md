@@ -26,7 +26,25 @@ This repository provides a template for implementing a gRPC API in Go, which can
 
 - Go 1.18 or later
 - Protobuf compiler (`protoc`)
+  ```bash
+  brew install protobuf # for mac
+  ```
+    ```bash
+  pip install protobuf # for linux
+  ```
 - gRPC and related Go libraries
+  ```bash
+  go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+  go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+  go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
+  ```
+- Pre-commit
+  ```bash
+  brew install pre-commit # for mac
+  ```
+  ```bash
+  pip install pre-commit # for linux
+  ```
 
 ### Installation
 
