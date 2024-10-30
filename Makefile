@@ -15,7 +15,7 @@ tidy:
 	go mod tidy
 
 build-linux:
-	CGO_ENABLED=0 GOOS=darwin go build -ldflags "-X github.com/TimRutte/api/internal/version.Version=${VERSION} -X github.com/TimRutte/api/internal/version.GitCommit=${COMMIT} -X github.com/TimRutte/api/internal/version.BuildDate=${BUILD_DATE}" -o ${BIN_NAME} ./cmd/api
+	CGO_ENABLED=0 GOOS=linux go build -ldflags "-X github.com/TimRutte/api/internal/version.Version=${VERSION} -X github.com/TimRutte/api/internal/version.GitCommit=${COMMIT} -X github.com/TimRutte/api/internal/version.BuildDate=${BUILD_DATE}" -o ${BIN_NAME} ./cmd/api
 
 build-darwin:
 	CGO_ENABLED=0 GOOS=darwin go build -ldflags "-X github.com/TimRutte/api/internal/version.Version=${VERSION} -X github.com/TimRutte/api/internal/version.GitCommit=${COMMIT} -X github.com/TimRutte/api/internal/version.BuildDate=${BUILD_DATE}" -o ${BIN_NAME} ./cmd/api
