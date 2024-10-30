@@ -64,3 +64,4 @@ override.tf.json
 *_override.tf.json
 
 /api
+/api_client
