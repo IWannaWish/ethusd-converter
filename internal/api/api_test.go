@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	apipb "github.com/TimRutte/api/proto/api"
+	apipb "github.com/TimRutte/api/proto/api/gen"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

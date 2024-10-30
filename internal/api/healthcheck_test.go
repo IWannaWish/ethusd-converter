@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	healthpb "github.com/TimRutte/api/proto/healthcheck"
+	healthpb "github.com/TimRutte/api/proto/healthcheck/gen"
 )
 
 func TestHealthCheck_Check(t *testing.T) {
