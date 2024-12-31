@@ -13,7 +13,7 @@ This repository provides a template for implementing a gRPC API in Go, which can
 - [License](#license)
 
 ## Features
-- s
+
 - **gRPC API**: Fast and efficient remote procedure calls.
 - **RESTful Access**: Access the same functionality through RESTful endpoints.
 - **Best Practices**: Organized project structure for maintainability and scalability.
