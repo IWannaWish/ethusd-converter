@@ -19,7 +19,7 @@ This repository provides a template for implementing a gRPC API in Go, which can
 - **Best Practices**: Organized project structure for maintainability and scalability.
 - **Integrated Testing**: Unit and integration tests to ensure code quality.
 - **Protobuf Definitions**: Clear and structured API definitions using Protocol Buffers.
-- s f
+- s fh
 ## Getting Started
 
 ### Prerequisites
