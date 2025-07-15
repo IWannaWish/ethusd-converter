@@ -1,88 +1,79 @@
-# gRPC API Template
+# ethusd-converter
 
-This repository provides a template for implementing a gRPC API in Go, which can also be accessed via REST. It demonstrates a well-structured project layout that adheres to best practices in Go development.
+`ethusd-converter` — это pet-проект на Go, предназначенный для практики разработки отказоустойчивых микросервисов в экосистеме Web3.  
+Сервис получает on-chain балансы ETH, WETH и популярных ERC-20 токенов по Ethereum-адресу и переводит их в доллары США по курсам Chainlink.  
+Результаты доступны через CLI и gRPC API.
 
-## Table of Contents
+Проект использует production-ориентированную архитектуру: с gRPC, кэшами (in-memory + Redis), брокером сообщений (NATS) и метриками Prometheus.
 
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Building and Running](#building-and-running)
-- [Testing](#testing)
-- [Contributing](#contributing)
-- [License](#license)
+---
 
-## Features
+## 📌 Особенности
 
-- **gRPC API**: Fast and efficient remote procedure calls.
-- **RESTful Access**: Access the same functionality through RESTful endpoints.
-- **Best Practices**: Organized project structure for maintainability and scalability.
-- **Integrated Testing**: Unit and integration tests to ensure code quality.
-- **Protobuf Definitions**: Clear and structured API definitions using Protocol Buffers.
+- CLI и gRPC интерфейсы
+- Получение on-chain балансов ETH и токенов
+- Chainlink Price Feeds (`latestRoundData()` on-chain)
+- 2-уровневый TTL-кэш: `go-cache` + Redis
+- Очередь задач через NATS
+- Прометей-метрики: время ответа, ошибки, кол-во запросов
+- Makefile, Docker-образ, Linter + Staticcheck
 
-## Getting Started
+---
 
-### Prerequisites
+## 🗂 Структура проекта
 
-- Go 1.18 or later
-- Protobuf compiler (`protoc`)
+- `cmd/cli` — CLI-приложение
+- `internal/api` — gRPC-сервер
+- `internal/core` — бизнес-логика
+- `internal/cache` — реализация 2-level TTL cache
+- `internal/broker` — взаимодействие с брокером (NATS)
+- `internal/eth` — взаимодействие с Ethereum, контракты
+- `proto/` — protobuf-схемы
+
+---
+
+## 🚀 Быстрый старт
+
+### Требования
+
+- Go 1.22+
+- `protoc`
+- gRPC + protobuf-плагины:
   ```bash
-  brew install protobuf # for mac
-  ```
-    ```bash
-  pip install protobuf # for linux
-  ```
-- gRPC and related Go libraries
-  ```bash
-  go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
   go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+  go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
   go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
   ```
-- Pre-commit
+
+- Доп. инструменты (опционально):
   ```bash
-  brew install pre-commit # for mac
-  ```
-  ```bash
-  pip install pre-commit # for linux
+  go install golang.org/x/tools/cmd/goimports@latest
+  go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+  go install honnef.co/go/tools/cmd/staticcheck@latest
   ```
 
-### Installation
+---
 
-1. Clone the repository:
+## 🛠 Установка
+
+1. Клонируйте репозиторий:
 
    ```bash
-   git clone https://github.com/TimRutte/api.git
-   cd api
+   git clone https://github.com/yourname/ethusd-converter.git
+   cd ethusd-converter
    ```
 
-2. Install dependencies:
+2. Установите зависимости:
 
    ```bash
    make tidy
    ```
 
-3. Install necessary Go tools:
+---
 
-   ```bash
-	go install golang.org/x/tools/cmd/goimports@latest
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-	go install honnef.co/go/tools/cmd/staticcheck@latest
-   ```
+## ⚙️ Сборка и запуск
 
-## Building and Running
-
-To build and run the application, use the following commands:
-
-```bash
-make build-linux
-```
-```bash
-make build-darwin
-```
-```bash
-make build-windows
-```
-
+### CLI
 
 ```bash
 make run
@@ -90,36 +81,56 @@ make run
 
 ### Docker
 
-To run the application in a Docker container, build the image:
+Сборка и запуск:
 
 ```bash
 make docker-build
-```
-
-Then run the container:
-
-```bash
 make docker-run
 ```
 
-## Testing
+---
 
-Unit tests and integration tests are included in the project. To run the tests with vulnerability check, use:
+## 💻 Пример CLI-запуска
+
+```bash
+./ethusd-converter 0x1234567890abcdef...
+```
+
+Вывод:
+```
+Address: 0x1234...abcd
+ETH:   1.245 ETH  ≈ $4,312.90
+WETH:  0.875 WETH ≈ $3,032.00
+DAI:   1500 DAI   ≈ $1,500.00
+
+Total: ≈ $8,844.90
+```
+
+---
+
+## ✅ Тестирование
+
+Полный запуск всех тестов:
 
 ```bash
 make test
 ```
 
-To run only the unit tests:
+Только unit-тесты:
 
 ```bash
 make test-only
 ```
 
-## Contributing
+---
 
-Contributions are welcome! If you find any issues or have suggestions for improvements, please feel free to open an issue or submit a pull request.
+## 🎯 Цель проекта
 
-## License
+Проект используется как pet-проект для собеседований и практики разработки микросервисов в стиле "production-grade Go":  
+работа с Ethereum, взаимодействие с контрактами, gRPC, кэширование, брокеры сообщений, метрики и т.д.
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+---
+
+## 📄 License
+
+Проект распространяется под лицензией MIT. Подробности в [LICENSE](LICENSE).
