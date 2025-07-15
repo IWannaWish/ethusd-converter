@@ -1,10 +1,11 @@
-module github.com/TimRutte/api
+module github.com/IWannaWish/ethusd-converter
 
 go 1.22.0
 
 toolchain go1.22.8
 
 require (
+	github.com/TimRutte/api v0.0.0-20241231094055-b21251b7bb19
 	github.com/golang/protobuf v1.5.4
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.25.1
 	github.com/rs/zerolog v1.33.0
@@ -33,7 +34,6 @@ require (
 	github.com/spf13/cast v1.7.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20241217172543-b2144cdd0a67 // indirect
 	golang.org/x/net v0.33.0 // indirect
