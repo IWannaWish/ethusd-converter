@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"fmt"
 	"github.com/IWannaWish/ethusd-converter/internal/eth"
 	"github.com/ethereum/go-ethereum/common"
@@ -20,13 +21,13 @@ func NewAssetService(client *ethclient.Client, feed eth.PriceFeed) AssetService 
 	}
 }
 
-func (s *ethAssetService) GetAssets(address common.Address) ([]Asset, error) {
+func (s *ethAssetService) GetAssets(ctx context.Context, address common.Address) ([]Asset, error) {
 	balance, err := eth.GetETHBalance(s.client, address)
 	if err != nil {
 		return nil, fmt.Errorf("error reading balance: %w", err)
 	}
 
-	price, err := s.feed.GetUSDPrice()
+	price, err := s.feed.GetUSDPrice(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error reading price: %w", err)
 	}

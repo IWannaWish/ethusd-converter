@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -11,5 +12,5 @@ type Asset struct {
 }
 
 type AssetService interface {
-	GetAssets(address common.Address) ([]Asset, error)
+	GetAssets(ctx context.Context, address common.Address) ([]Asset, error)
 }

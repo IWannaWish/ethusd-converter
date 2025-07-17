@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/IWannaWish/ethusd-converter/internal/core"
 	"github.com/IWannaWish/ethusd-converter/internal/eth"
 	"log"
@@ -48,15 +49,15 @@ func main() {
 		log.Fatalf("Failed to load Chainlink ABI: %v", err)
 	}
 
-	// 6. Собираем зависимость feed (через интерфейс)
+	// 6. Собираем зависимость feed
 	feedAddress := common.HexToAddress(feedAddrStr)
 	feed := eth.NewChainlinkFeed(client, feedAddress, aggregatorABI)
 
-	// 7. Собираем бизнес-сервис (через интерфейс)
+	// 7. Собираем бизнес-сервис
 	service := core.NewAssetService(client, feed)
 
 	// 8. Получаем активы
-	assets, err := service.GetAssets(address)
+	assets, err := service.GetAssets(context.Background(), address)
 	if err != nil {
 		log.Fatalf("Failed to get assets: %v", err)
 	}
