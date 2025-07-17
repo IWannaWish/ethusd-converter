@@ -2,43 +2,55 @@ package core
 
 import (
 	"context"
-	"fmt"
-	"github.com/IWannaWish/ethusd-converter/internal/eth"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
+	"log"
 	"math/big"
 )
 
 type ethAssetService struct {
-	client *ethclient.Client
-	feed   eth.PriceFeed
+	sources []AssetSource
 }
 
-func NewAssetService(client *ethclient.Client, feed eth.PriceFeed) AssetService {
+func NewAssetService(sources []AssetSource) AssetService {
 	return &ethAssetService{
-		client: client,
-		feed:   feed,
+		sources: sources,
 	}
 }
-
 func (s *ethAssetService) GetAssets(ctx context.Context, address common.Address) ([]Asset, error) {
-	balance, err := eth.GetETHBalance(s.client, address)
-	if err != nil {
-		return nil, fmt.Errorf("error reading balance: %w", err)
+	var result []Asset
+	var totalUSD = big.NewFloat(0)
+
+	for _, src := range s.sources {
+		balance, err := src.Token.GetBalance(ctx, address)
+		if err != nil {
+			log.Printf("Error getting balance for %s: %v", src.Token.GetSymbol(), err)
+			continue
+		}
+		log.Printf("%s balance: %s", src.Token.GetSymbol(), balance.Text('f', 6))
+
+		price, err := src.Feed.GetUSDPrice(ctx)
+		if err != nil {
+			log.Printf("Error getting price for %s: %v", src.Token.GetSymbol(), err)
+			continue
+		}
+		log.Printf("%s price: %s", src.Token.GetSymbol(), price.Text('f', 6))
+
+		usdValue := new(big.Float).Mul(balance, price)
+		totalUSD.Add(totalUSD, usdValue)
+
+		result = append(result, Asset{
+			Symbol:   src.Token.GetSymbol(),
+			Balance:  balance.Text('f', 6),
+			USDValue: "$" + usdValue.Text('f', 2),
+		})
 	}
 
-	price, err := s.feed.GetUSDPrice(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("error reading price: %w", err)
-	}
+	// Можем добавить итоговую сумму в конце (если хочешь)
+	result = append(result, Asset{
+		Symbol:   "Total",
+		Balance:  "",
+		USDValue: "$" + totalUSD.Text('f', 2),
+	})
 
-	total := new(big.Float).Mul(balance, price)
-
-	asset := Asset{
-		Symbol:   "ETH",
-		Balance:  balance.Text('f', 6),
-		USDValue: "$" + total.Text('f', 2),
-	}
-
-	return []Asset{asset}, nil
+	return result, nil
 }

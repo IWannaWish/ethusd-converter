@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
-	"github.com/IWannaWish/ethusd-converter/internal/core"
+	"fmt"
 	"github.com/IWannaWish/ethusd-converter/internal/eth"
 	"log"
 	"os"
+
+	"github.com/IWannaWish/ethusd-converter/internal/config"
+	"github.com/IWannaWish/ethusd-converter/internal/core"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -13,61 +16,68 @@ import (
 )
 
 func main() {
-	// 1. Загружаем .env переменные
-	if err := godotenv.Load("config.env"); err != nil {
-		log.Println(".env файл не найден, переменные должны быть экспортированы вручную")
-	}
+	// 1. Загружаем .env файл
+	_ = godotenv.Load("config.env") // мягко, без фатала
 
-	// 2. Читаем переменные из окружения
+	// 2. Читаем переменные окружения
 	rpcURL := os.Getenv("RPC_URL")
-	feedAddrStr := os.Getenv("CHAINLINK_ETH_USD")
-
-	if rpcURL == "" || feedAddrStr == "" {
-		log.Fatal("RPC_URL и CHAINLINK_ETH_USD должны быть заданы в .env или окружении")
+	if rpcURL == "" {
+		log.Fatal("RPC_URL не задан в .env или окружении")
 	}
 
-	// 3. Читаем адрес из аргументов
+	// 3. Читаем аргументы
 	if len(os.Args) < 2 {
 		log.Fatal("Usage: ./ethusd-converter <ethereum_address>")
 	}
 	rawAddr := os.Args[1]
 	if !common.IsHexAddress(rawAddr) {
-		log.Fatalf("Invalid Ethereum address: %s", rawAddr)
+		log.Fatalf("Неверный Ethereum адрес: %s", rawAddr)
 	}
 	address := common.HexToAddress(rawAddr)
 
-	// 4. Подключаемся к Ethereum
+	// 4. Подключаемся к Ethereum node
 	client, err := ethclient.Dial(rpcURL)
 	if err != nil {
-		log.Fatalf("Failed to connect to Ethereum node: %v", err)
+		log.Fatalf("Ошибка подключения к Ethereum node: %v", err)
 	}
 	defer client.Close()
 
-	// 5. Загружаем ABI
-	aggregatorABI, err := eth.LoadAggregatorABI()
+	// 5. Загружаем tokenlist.yaml
+	tokenList, err := config.LoadTokenList("internal/config/tokenlist.yaml")
 	if err != nil {
-		log.Fatalf("Failed to load Chainlink ABI: %v", err)
+		log.Fatalf("Не удалось загрузить tokenlist.yaml: %v", err)
 	}
 
-	// 6. Собираем зависимость feed
-	feedAddress := common.HexToAddress(feedAddrStr)
-	feed := eth.NewChainlinkFeed(client, feedAddress, aggregatorABI)
+	// 6. Загружаем ABI
+	erc20ABI, err := eth.LoadERC20ABI()
+	if err != nil {
+		log.Fatalf("Ошибка загрузки ERC20 ABI: %v", err)
+	}
+	feedABI, err := eth.LoadAggregatorABI()
+	if err != nil {
+		log.Fatalf("Ошибка загрузки Chainlink ABI: %v", err)
+	}
 
-	// 7. Собираем бизнес-сервис
-	service := core.NewAssetService(client, feed)
+	// 7. Строим источники данных (токены + прайс фиды)
+	sources, err := core.BuildAssetSources(tokenList.Tokens, client, erc20ABI, feedABI)
+	if err != nil {
+		log.Fatalf("Ошибка построения токенов и фидов: %v", err)
+	}
 
-	// 8. Получаем активы
+	// 8. Инициализируем бизнес-сервис
+	service := core.NewAssetService(sources)
+
+	// 9. Получаем активы
 	assets, err := service.GetAssets(context.Background(), address)
 	if err != nil {
-		log.Fatalf("Failed to get assets: %v", err)
+		log.Fatalf("Ошибка получения активов: %v", err)
 	}
 
-	// 9. Выводим красиво
-	log.Printf("Address: %s", rawAddr)
-	var total string
-	for _, asset := range assets {
-		log.Printf("%s: %s ≈ %s", asset.Symbol, asset.Balance, asset.USDValue)
-		total = asset.USDValue // позже заменим на суммирование
+	// 10. Печатаем результат
+	fmt.Printf("Address: %s\n", address.Hex())
+	for _, asset := range assets[:len(assets)-1] {
+		fmt.Printf("%s: %s ≈ %s\n", asset.Symbol, asset.Balance, asset.USDValue)
 	}
-	log.Printf("Total: %s", total)
+	total := assets[len(assets)-1] // последний — Total
+	fmt.Printf("\nTotal: %s\n", total.USDValue)
 }
