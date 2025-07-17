@@ -11,7 +11,7 @@ import (
 )
 
 type PriceFeed interface {
-	GetUSDPrice() (*big.Float, error)
+	GetUSDPrice(ctx context.Context) (*big.Float, error)
 }
 
 type ChainlinkFeed struct {
@@ -38,7 +38,7 @@ func NewChainlinkFeed(client *ethclient.Client, feedAddress common.Address, abi 
 
 const methodLatestRound = "latestRoundData"
 
-func (c *ChainlinkFeed) GetUSDPrice() (*big.Float, error) {
+func (c *ChainlinkFeed) GetUSDPrice(ctx context.Context) (*big.Float, error) {
 	callData, err := c.ABI.Pack(methodLatestRound)
 	if err != nil {
 		return nil, fmt.Errorf("pack error: %w", err)
