@@ -1,8 +1,9 @@
-package token
+package erc20
 
 import (
 	"context"
 	"errors"
+	"github.com/IWannaWish/ethusd-converter/internal/core/util"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -35,12 +36,12 @@ func (t ERC20Token) GetBalance(ctx context.Context, holder common.Address) (*big
 	if err != nil {
 		return nil, err
 	}
+
 	msg := ethereum.CallMsg{
 		To:   &t.address,
 		Data: callData,
 	}
 
-	// Можно явно указать последний блок
 	latestBlock, err := t.client.BlockNumber(ctx)
 	if err != nil {
 		return nil, err
@@ -54,15 +55,10 @@ func (t ERC20Token) GetBalance(ctx context.Context, holder common.Address) (*big
 		return nil, errors.New("empty result from balanceOf")
 	}
 
-	// Логирование для диагностики
 	log.Printf("Raw balanceOf result for %s: %x", t.symbol, result)
 
 	balance := new(big.Int).SetBytes(result)
-
-	decimalsBigInt := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(t.decimals)), nil)
-	scale := new(big.Float).SetInt(decimalsBigInt)
-
-	return new(big.Float).Quo(new(big.Float).SetInt(balance), scale), nil
+	return util.ScaleDown(balance, int(t.decimals)), nil
 }
 
 func (t ERC20Token) GetSymbol() string {

@@ -2,14 +2,14 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"github.com/IWannaWish/ethusd-converter/internal/eth"
+	"github.com/IWannaWish/ethusd-converter/cmd/cli/display"
+	"github.com/IWannaWish/ethusd-converter/internal/core/mapper"
+	"github.com/IWannaWish/ethusd-converter/internal/eth/abi"
+	"github.com/IWannaWish/ethusd-converter/internal/eth/source"
 	"log"
 	"os"
 
 	"github.com/IWannaWish/ethusd-converter/internal/config"
-	"github.com/IWannaWish/ethusd-converter/internal/core"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/joho/godotenv"
@@ -49,35 +49,36 @@ func main() {
 	}
 
 	// 6. Загружаем ABI
-	erc20ABI, err := eth.LoadERC20ABI()
+	erc20ABI, err := abi.LoadERC20ABI()
 	if err != nil {
 		log.Fatalf("Ошибка загрузки ERC20 ABI: %v", err)
 	}
-	feedABI, err := eth.LoadAggregatorABI()
+	feedABI, err := abi.LoadAggregatorABI()
 	if err != nil {
 		log.Fatalf("Ошибка загрузки Chainlink ABI: %v", err)
 	}
 
 	// 7. Строим источники данных (токены + прайс фиды)
-	sources, err := core.BuildAssetSources(tokenList.Tokens, client, erc20ABI, feedABI)
+	sources, err := source.BuildAssetSources(tokenList.Tokens, client, erc20ABI, feedABI)
 	if err != nil {
 		log.Fatalf("Ошибка построения токенов и фидов: %v", err)
 	}
 
 	// 8. Инициализируем бизнес-сервис
-	service := core.NewAssetService(sources)
+	service := source.NewAssetService(sources)
 
 	// 9. Получаем активы
 	assets, err := service.GetAssets(context.Background(), address)
 	if err != nil {
 		log.Fatalf("Ошибка получения активов: %v", err)
 	}
-
 	// 10. Печатаем результат
-	fmt.Printf("Address: %s\n", address.Hex())
-	for _, asset := range assets[:len(assets)-1] {
-		fmt.Printf("%s: %s ≈ %s\n", asset.Symbol, asset.Balance, asset.USDValue)
+	simpleMapper := mapper.NewDisplayAssetMapper()
+	printer := display.NewTablePrinter()
+
+	info, total, err := simpleMapper.Map(assets)
+	if err != nil {
+		log.Fatalf("Ошибка преобразования активов: %v", err)
 	}
-	total := assets[len(assets)-1] // последний — Total
-	fmt.Printf("\nTotal: %s\n", total.USDValue)
+	printer.Print(address.Hex(), info, total)
 }

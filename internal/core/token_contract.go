@@ -1,4 +1,4 @@
-package token
+package core
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"math/big"
 )
 
+// TokenBalanceFetcher — универсальный интерфейс для получения баланса токена (ETH, ERC-20)
 type TokenBalanceFetcher interface {
 	GetBalance(ctx context.Context, holder common.Address) (*big.Float, error)
 	GetSymbol() string

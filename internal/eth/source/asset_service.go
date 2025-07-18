@@ -1,7 +1,8 @@
-package core
+package source
 
 import (
 	"context"
+	"github.com/IWannaWish/ethusd-converter/internal/core"
 	"github.com/ethereum/go-ethereum/common"
 	"log"
 	"math/big"
@@ -11,13 +12,13 @@ type ethAssetService struct {
 	sources []AssetSource
 }
 
-func NewAssetService(sources []AssetSource) AssetService {
+func NewAssetService(sources []AssetSource) core.AssetService {
 	return &ethAssetService{
 		sources: sources,
 	}
 }
-func (s *ethAssetService) GetAssets(ctx context.Context, address common.Address) ([]Asset, error) {
-	var result []Asset
+func (s *ethAssetService) GetAssets(ctx context.Context, address common.Address) ([]core.Asset, error) {
+	var result []core.Asset
 	var totalUSD = big.NewFloat(0)
 
 	for _, src := range s.sources {
@@ -38,19 +39,11 @@ func (s *ethAssetService) GetAssets(ctx context.Context, address common.Address)
 		usdValue := new(big.Float).Mul(balance, price)
 		totalUSD.Add(totalUSD, usdValue)
 
-		result = append(result, Asset{
+		result = append(result, core.Asset{
 			Symbol:   src.Token.GetSymbol(),
 			Balance:  balance.Text('f', 6),
 			USDValue: "$" + usdValue.Text('f', 2),
 		})
 	}
-
-	// Можем добавить итоговую сумму в конце (если хочешь)
-	result = append(result, Asset{
-		Symbol:   "Total",
-		Balance:  "",
-		USDValue: "$" + totalUSD.Text('f', 2),
-	})
-
 	return result, nil
 }
