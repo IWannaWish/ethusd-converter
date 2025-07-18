@@ -3,6 +3,7 @@ package chainlink
 import (
 	"context"
 	"fmt"
+	"github.com/IWannaWish/ethusd-converter/internal/core/util"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -57,5 +58,5 @@ func (c *ChainlinkFeed) GetUSDPrice(ctx context.Context) (*big.Float, error) {
 		return nil, fmt.Errorf("unpack error: %w", err)
 	}
 
-	return new(big.Float).Quo(new(big.Float).SetInt(rd.Answer), big.NewFloat(1e8)), nil
+	return util.ScaleDown(rd.Answer, 8), nil
 }

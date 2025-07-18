@@ -5,9 +5,11 @@ import (
 	"github.com/IWannaWish/ethusd-converter/internal/core"
 	"github.com/IWannaWish/ethusd-converter/internal/eth/chainlink"
 	"github.com/IWannaWish/ethusd-converter/internal/eth/token/erc20"
+	"github.com/IWannaWish/ethusd-converter/internal/eth/token/eth"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"log"
 )
 
 type AssetSource struct {
@@ -25,14 +27,29 @@ func BuildAssetSources(
 	var sources []AssetSource
 
 	for _, entry := range tokenList {
-		tokenAddress := common.HexToAddress(entry.TokenAddress)
-		priceFeedAddress := common.HexToAddress(entry.PriceFeedAddress)
+		feed := chainlink.NewChainlinkFeed(
+			client,
+			common.HexToAddress(entry.PriceFeedAddress),
+			feedABI,
+		)
 
-		erc20 := erc20.NewERC20Token(entry.Symbol, tokenAddress, entry.Decimals, client, erc20ABI)
-		feed := chainlink.NewChainlinkFeed(client, priceFeedAddress, feedABI)
+		var token core.TokenBalanceFetcher
+
+		switch entry.Type {
+		case "eth":
+			token = eth.NewNativeTokenReader(client)
+
+		case "erc20":
+			tokenAddress := common.HexToAddress(entry.TokenAddress)
+			token = erc20.NewERC20Token(entry.Symbol, tokenAddress, entry.Decimals, client, erc20ABI)
+
+		default:
+			log.Printf("Неизвестный тип токена %s, символ: %s — пропускаем", entry.Type, entry.Symbol)
+			continue
+		}
 
 		sources = append(sources, AssetSource{
-			Token: erc20,
+			Token: token,
 			Feed:  feed,
 		})
 	}
