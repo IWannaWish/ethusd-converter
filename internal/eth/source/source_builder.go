@@ -1,17 +1,18 @@
-package core
+package source
 
 import (
 	"github.com/IWannaWish/ethusd-converter/internal/config"
-	"github.com/IWannaWish/ethusd-converter/internal/eth"
-	"github.com/IWannaWish/ethusd-converter/internal/eth/token"
+	"github.com/IWannaWish/ethusd-converter/internal/core"
+	"github.com/IWannaWish/ethusd-converter/internal/eth/chainlink"
+	"github.com/IWannaWish/ethusd-converter/internal/eth/token/erc20"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 type AssetSource struct {
-	Token token.TokenBalanceFetcher
-	Feed  eth.PriceFeed
+	Token core.TokenBalanceFetcher
+	Feed  chainlink.PriceFeed
 }
 
 func BuildAssetSources(
@@ -27,8 +28,8 @@ func BuildAssetSources(
 		tokenAddress := common.HexToAddress(entry.TokenAddress)
 		priceFeedAddress := common.HexToAddress(entry.PriceFeedAddress)
 
-		erc20 := token.NewERC20Token(entry.Symbol, tokenAddress, entry.Decimals, client, erc20ABI)
-		feed := eth.NewChainlinkFeed(client, priceFeedAddress, feedABI)
+		erc20 := erc20.NewERC20Token(entry.Symbol, tokenAddress, entry.Decimals, client, erc20ABI)
+		feed := chainlink.NewChainlinkFeed(client, priceFeedAddress, feedABI)
 
 		sources = append(sources, AssetSource{
 			Token: erc20,

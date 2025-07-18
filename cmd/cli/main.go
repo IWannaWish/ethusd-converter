@@ -4,13 +4,12 @@ import (
 	"context"
 	"github.com/IWannaWish/ethusd-converter/cmd/cli/display"
 	"github.com/IWannaWish/ethusd-converter/cmd/cli/mapper"
-	"github.com/IWannaWish/ethusd-converter/internal/eth"
+	"github.com/IWannaWish/ethusd-converter/internal/eth/abi"
+	"github.com/IWannaWish/ethusd-converter/internal/eth/source"
 	"log"
 	"os"
 
 	"github.com/IWannaWish/ethusd-converter/internal/config"
-	"github.com/IWannaWish/ethusd-converter/internal/core"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/joho/godotenv"
@@ -50,23 +49,23 @@ func main() {
 	}
 
 	// 6. Загружаем ABI
-	erc20ABI, err := eth.LoadERC20ABI()
+	erc20ABI, err := abi.LoadERC20ABI()
 	if err != nil {
 		log.Fatalf("Ошибка загрузки ERC20 ABI: %v", err)
 	}
-	feedABI, err := eth.LoadAggregatorABI()
+	feedABI, err := abi.LoadAggregatorABI()
 	if err != nil {
 		log.Fatalf("Ошибка загрузки Chainlink ABI: %v", err)
 	}
 
 	// 7. Строим источники данных (токены + прайс фиды)
-	sources, err := core.BuildAssetSources(tokenList.Tokens, client, erc20ABI, feedABI)
+	sources, err := source.BuildAssetSources(tokenList.Tokens, client, erc20ABI, feedABI)
 	if err != nil {
 		log.Fatalf("Ошибка построения токенов и фидов: %v", err)
 	}
 
 	// 8. Инициализируем бизнес-сервис
-	service := core.NewAssetService(sources)
+	service := source.NewAssetService(sources)
 
 	// 9. Получаем активы
 	assets, err := service.GetAssets(context.Background(), address)
