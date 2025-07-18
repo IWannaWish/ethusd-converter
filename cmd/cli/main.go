@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"github.com/IWannaWish/ethusd-converter/cmd/cli/display"
-	"github.com/IWannaWish/ethusd-converter/cmd/cli/mapper"
+	"github.com/IWannaWish/ethusd-converter/internal/core/mapper"
 	"github.com/IWannaWish/ethusd-converter/internal/eth/abi"
 	"github.com/IWannaWish/ethusd-converter/internal/eth/source"
 	"log"
@@ -73,7 +73,7 @@ func main() {
 		log.Fatalf("Ошибка получения активов: %v", err)
 	}
 	// 10. Печатаем результат
-	simpleMapper := mapper.NewSimpleAssetMapper()
+	simpleMapper := mapper.NewDisplayAssetMapper()
 	printer := display.NewTablePrinter()
 
 	info, total, err := simpleMapper.Map(assets)
