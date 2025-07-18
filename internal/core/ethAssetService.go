@@ -44,13 +44,5 @@ func (s *ethAssetService) GetAssets(ctx context.Context, address common.Address)
 			USDValue: "$" + usdValue.Text('f', 2),
 		})
 	}
-
-	// Можем добавить итоговую сумму в конце (если хочешь)
-	result = append(result, Asset{
-		Symbol:   "Total",
-		Balance:  "",
-		USDValue: "$" + totalUSD.Text('f', 2),
-	})
-
 	return result, nil
 }

@@ -2,7 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"github.com/IWannaWish/ethusd-converter/cmd/cli/display"
+	"github.com/IWannaWish/ethusd-converter/cmd/cli/mapper"
 	"github.com/IWannaWish/ethusd-converter/internal/eth"
 	"log"
 	"os"
@@ -72,12 +73,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("Ошибка получения активов: %v", err)
 	}
-
 	// 10. Печатаем результат
-	fmt.Printf("Address: %s\n", address.Hex())
-	for _, asset := range assets[:len(assets)-1] {
-		fmt.Printf("%s: %s ≈ %s\n", asset.Symbol, asset.Balance, asset.USDValue)
+	simpleMapper := mapper.NewSimpleAssetMapper()
+	printer := display.NewTablePrinter()
+
+	info, total, err := simpleMapper.Map(assets)
+	if err != nil {
+		log.Fatalf("Ошибка преобразования активов: %v", err)
 	}
-	total := assets[len(assets)-1] // последний — Total
-	fmt.Printf("\nTotal: %s\n", total.USDValue)
+	printer.Print(address.Hex(), info, total)
 }
