@@ -19,7 +19,26 @@ func NewSlogLogger() *SlogLogger {
 
 	if format == "text" {
 		handler = tint.NewHandler(os.Stdout, &tint.Options{
-			Level: slog.LevelDebug,
+			Level:      level,
+			TimeFormat: "2006-01-02 15:04:05",
+			AddSource:  level == slog.LevelDebug,
+			NoColor:    false,
+			ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+				if a.Key == "request_id" {
+					a.Key = "rid"
+				}
+
+				// Минимализм для info и выше
+				if level >= slog.LevelInfo && level != slog.LevelDebug {
+					switch a.Key {
+					//todo EC-10 добавить stack
+					case "source", "stack":
+						return slog.Attr{}
+					}
+				}
+
+				return a
+			},
 		})
 	} else {
 		handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
