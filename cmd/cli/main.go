@@ -18,68 +18,70 @@ import (
 )
 
 func main() {
-	_ = godotenv.Load("config.env") // мягко, без фатала
+	_ = godotenv.Load("config.env")
 
-	// 1. Загружаем конфигурацию
 	cfg := config.Load()
-
-	logger := log.NewSlogLogger(cfg)
+	logger := log.NewLogger(cfg)
 	ctx := log.WithRequestID(context.Background(), uuid.NewString())
 
 	logger.Info(ctx, "ethusd-converter started",
-		log.String("log_format", cfg.LogFormat),
 		log.String("log_level", cfg.LogLevel),
 		log.String("module", "main"),
 	)
 
-	// 2. Читаем аргумент адреса
 	if len(os.Args) < 2 {
-		//log.Fatal("Usage: ./ethusd-converter <ethereum_address>")
+		logger.Error(ctx, "Usage: ./ethusd-converter <ethereum_address>")
+		os.Exit(1)
 	}
+
 	rawAddr := os.Args[1]
 	if !common.IsHexAddress(rawAddr) {
-		//log.Fatalf("Неверный Ethereum адрес: %s", rawAddr)
+		logger.Error(ctx, "Неверный Ethereum адрес", log.String("address", rawAddr))
+		os.Exit(1)
 	}
 	address := common.HexToAddress(rawAddr)
 
-	// 3. Подключение к Ethereum
 	client, err := ethclient.Dial(cfg.RPCURL)
 	if err != nil {
-		//log.Fatalf("Ошибка подключения к Ethereum node: %v", err)
+		logger.Error(ctx, "Ошибка подключения к Ethereum node", log.WithStack(err)...)
+		os.Exit(1)
 	}
 	defer client.Close()
 
-	// 4. ABI
 	erc20ABI, err := abi.LoadERC20ABI()
 	if err != nil {
-		//log.Fatalf("Ошибка загрузки ERC20 ABI: %v", err)
+		logger.Error(ctx, "Ошибка загрузки ERC20 ABI", log.WithStack(err)...)
+		os.Exit(1)
 	}
+
 	feedABI, err := abi.LoadAggregatorABI()
 	if err != nil {
-		//log.Fatalf("Ошибка загрузки Chainlink ABI: %v", err)
+		logger.Error(ctx, "Ошибка загрузки Chainlink ABI", log.WithStack(err)...)
+		os.Exit(1)
 	}
 
-	// 5. Источники данных
 	sources, err := source.BuildAssetSources(cfg.Tokens, client, erc20ABI, feedABI)
 	if err != nil {
-		//log.Fatalf("Ошибка построения токенов и фидов: %v", err)
+		logger.Error(ctx, "Ошибка построения токенов и фидов", log.WithStack(err)...)
+		os.Exit(1)
 	}
 
-	// 6. Бизнес-логика
 	service := source.NewAssetService(sources)
 
-	assets, err := service.GetAssets(context.Background(), address)
+	assets, err := service.GetAssets(ctx, address)
 	if err != nil {
-		//log.Fatalf("Ошибка получения активов: %v", err)
+		logger.Error(ctx, "Ошибка получения активов", log.WithStack(err)...)
+		os.Exit(1)
 	}
 
-	// 7. Вывод
-	simpleMapper := mapper.NewDisplayAssetMapper()
+	assetMapper := mapper.NewDisplayAssetMapper()
 	printer := display.NewTablePrinter()
 
-	info, total, err := simpleMapper.Map(assets)
+	info, total, err := assetMapper.Map(assets)
 	if err != nil {
-		//log.Fatalf("Ошибка преобразования активов: %v", err)
+		logger.Error(ctx, "Ошибка преобразования активов", log.WithStack(err)...)
+		os.Exit(1)
 	}
+
 	printer.Print(address.Hex(), info, total)
 }

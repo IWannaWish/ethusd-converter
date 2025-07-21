@@ -3,9 +3,9 @@ package log
 import (
 	"context"
 	"github.com/IWannaWish/ethusd-converter/internal/config"
-	"github.com/lmittmann/tint"
 	"log/slog"
 	"os"
+	"strings"
 )
 
 type SlogLogger struct {
@@ -14,38 +14,20 @@ type SlogLogger struct {
 
 func NewSlogLogger(cfg *config.Config) *SlogLogger {
 	level := parseLogLevel(cfg.LogLevel)
-	format := cfg.LogFormat // json/text
 
-	var handler slog.Handler
+	handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: level,
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			if a.Key == "stack" {
+				return slog.Attr{}
+			}
+			if a.Key == "request_id" {
+				a.Key = "rid"
+			}
+			return a
+		},
+	})
 
-	if format == "text" {
-		handler = tint.NewHandler(os.Stdout, &tint.Options{
-			Level:      level,
-			TimeFormat: "2006-01-02 15:04:05",
-			AddSource:  level == slog.LevelDebug,
-			NoColor:    false,
-			ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
-				if a.Key == "request_id" {
-					a.Key = "rid"
-				}
-
-				// Минимализм для info и выше
-				if level >= slog.LevelInfo && level != slog.LevelDebug {
-					switch a.Key {
-					//todo EC-10 добавить stack
-					case "source", "stack":
-						return slog.Attr{}
-					}
-				}
-
-				return a
-			},
-		})
-	} else {
-		handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-			Level: level,
-		})
-	}
 	return &SlogLogger{
 		logger: slog.New(handler),
 	}
@@ -61,7 +43,6 @@ func (s SlogLogger) Debug(ctx context.Context, msg string, args ...Field) {
 
 func (s SlogLogger) Error(ctx context.Context, msg string, args ...Field) {
 	s.logger.ErrorContext(ctx, msg, toArgs(ctx, args)...)
-
 }
 
 func (s SlogLogger) With(args ...Field) Logger {
@@ -83,4 +64,19 @@ func toArgs(ctx context.Context, fields []Field) []any {
 		args = append(args, f.Key, f.Value)
 	}
 	return args
+}
+
+func parseLogLevel(s string) slog.Level {
+	switch strings.ToLower(s) {
+	case "debug":
+		return slog.LevelDebug
+	case "info":
+		return slog.LevelInfo
+	case "warn":
+		return slog.LevelWarn
+	case "error":
+		return slog.LevelError
+	default:
+		return slog.LevelInfo
+	}
 }
