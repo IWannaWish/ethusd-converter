@@ -74,10 +74,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	mapper := mapper.NewDisplayAssetMapper()
+	assetMapper := mapper.NewDisplayAssetMapper()
 	printer := display.NewTablePrinter()
 
-	info, total, err := mapper.Map(assets)
+	info, total, err := assetMapper.Map(assets)
 	if err != nil {
 		logger.Error(ctx, "Ошибка преобразования активов", log.WithStack(err)...)
 		os.Exit(1)
