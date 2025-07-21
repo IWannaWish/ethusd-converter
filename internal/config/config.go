@@ -11,8 +11,8 @@ type Config struct {
 	RPCURL          string `env:"RPC_URL,required"`
 	ChainlinkETHUSD string `env:"CHAINLINK_ETH_USD,required"`
 
-	LogLevel  string `env:"LOG_LEVEL" envDefault:"info"`
-	LogFormat string `env:"LOG_FORMAT" envDefault:"json"`
+	LogLevel string `env:"LOG_LEVEL" envDefault:"info"`
+	UseZap   bool   `env:"LOG_DEV" envDefault:"false"`
 
 	Tokens []TokenConfig `yaml:"tokens"`
 }
