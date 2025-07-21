@@ -6,79 +6,80 @@ import (
 	"github.com/IWannaWish/ethusd-converter/internal/core/mapper"
 	"github.com/IWannaWish/ethusd-converter/internal/eth/abi"
 	"github.com/IWannaWish/ethusd-converter/internal/eth/source"
-	"log"
+	"github.com/IWannaWish/ethusd-converter/internal/log"
+	"github.com/google/uuid"
+	"github.com/joho/godotenv"
+
 	"os"
 
 	"github.com/IWannaWish/ethusd-converter/internal/config"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	// 1. Загружаем .env файл
 	_ = godotenv.Load("config.env") // мягко, без фатала
 
-	// 2. Читаем переменные окружения
-	rpcURL := os.Getenv("RPC_URL")
-	if rpcURL == "" {
-		log.Fatal("RPC_URL не задан в .env или окружении")
-	}
+	// 1. Загружаем конфигурацию
+	cfg := config.Load()
 
-	// 3. Читаем аргументы
+	logger := log.NewSlogLogger(cfg)
+	ctx := log.WithRequestID(context.Background(), uuid.NewString())
+
+	logger.Info(ctx, "ethusd-converter started",
+		log.String("log_format", cfg.LogFormat),
+		log.String("log_level", cfg.LogLevel),
+		log.String("module", "main"),
+	)
+
+	// 2. Читаем аргумент адреса
 	if len(os.Args) < 2 {
-		log.Fatal("Usage: ./ethusd-converter <ethereum_address>")
+		//log.Fatal("Usage: ./ethusd-converter <ethereum_address>")
 	}
 	rawAddr := os.Args[1]
 	if !common.IsHexAddress(rawAddr) {
-		log.Fatalf("Неверный Ethereum адрес: %s", rawAddr)
+		//log.Fatalf("Неверный Ethereum адрес: %s", rawAddr)
 	}
 	address := common.HexToAddress(rawAddr)
 
-	// 4. Подключаемся к Ethereum node
-	client, err := ethclient.Dial(rpcURL)
+	// 3. Подключение к Ethereum
+	client, err := ethclient.Dial(cfg.RPCURL)
 	if err != nil {
-		log.Fatalf("Ошибка подключения к Ethereum node: %v", err)
+		//log.Fatalf("Ошибка подключения к Ethereum node: %v", err)
 	}
 	defer client.Close()
 
-	// 5. Загружаем tokenlist.yaml
-	tokenList, err := config.LoadTokenList("internal/config/tokenlist.yaml")
-	if err != nil {
-		log.Fatalf("Не удалось загрузить tokenlist.yaml: %v", err)
-	}
-
-	// 6. Загружаем ABI
+	// 4. ABI
 	erc20ABI, err := abi.LoadERC20ABI()
 	if err != nil {
-		log.Fatalf("Ошибка загрузки ERC20 ABI: %v", err)
+		//log.Fatalf("Ошибка загрузки ERC20 ABI: %v", err)
 	}
 	feedABI, err := abi.LoadAggregatorABI()
 	if err != nil {
-		log.Fatalf("Ошибка загрузки Chainlink ABI: %v", err)
+		//log.Fatalf("Ошибка загрузки Chainlink ABI: %v", err)
 	}
 
-	// 7. Строим источники данных (токены + прайс фиды)
-	sources, err := source.BuildAssetSources(tokenList.Tokens, client, erc20ABI, feedABI)
+	// 5. Источники данных
+	sources, err := source.BuildAssetSources(cfg.Tokens, client, erc20ABI, feedABI)
 	if err != nil {
-		log.Fatalf("Ошибка построения токенов и фидов: %v", err)
+		//log.Fatalf("Ошибка построения токенов и фидов: %v", err)
 	}
 
-	// 8. Инициализируем бизнес-сервис
+	// 6. Бизнес-логика
 	service := source.NewAssetService(sources)
 
-	// 9. Получаем активы
 	assets, err := service.GetAssets(context.Background(), address)
 	if err != nil {
-		log.Fatalf("Ошибка получения активов: %v", err)
+		//log.Fatalf("Ошибка получения активов: %v", err)
 	}
-	// 10. Печатаем результат
+
+	// 7. Вывод
 	simpleMapper := mapper.NewDisplayAssetMapper()
 	printer := display.NewTablePrinter()
 
 	info, total, err := simpleMapper.Map(assets)
 	if err != nil {
-		log.Fatalf("Ошибка преобразования активов: %v", err)
+		//log.Fatalf("Ошибка преобразования активов: %v", err)
 	}
 	printer.Print(address.Hex(), info, total)
 }

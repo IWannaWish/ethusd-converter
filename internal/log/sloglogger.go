@@ -2,6 +2,7 @@ package log
 
 import (
 	"context"
+	"github.com/IWannaWish/ethusd-converter/internal/config"
 	"github.com/lmittmann/tint"
 	"log/slog"
 	"os"
@@ -11,9 +12,9 @@ type SlogLogger struct {
 	logger *slog.Logger
 }
 
-func NewSlogLogger() *SlogLogger {
-	format := os.Getenv("LOG_FORMAT") // json/text
-	level := parseLogLevel(os.Getenv("LOG_LEVEL"))
+func NewSlogLogger(cfg *config.Config) *SlogLogger {
+	level := parseLogLevel(cfg.LogLevel)
+	format := cfg.LogFormat // json/text
 
 	var handler slog.Handler
 
