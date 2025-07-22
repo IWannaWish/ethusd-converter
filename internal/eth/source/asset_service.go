@@ -22,7 +22,6 @@ func NewAssetService(sources []AssetSource, logger applog.Logger) core.AssetServ
 }
 func (s *ethAssetService) GetAssets(ctx context.Context, address common.Address) ([]core.Asset, error) {
 	var result []core.Asset
-	var totalUSD = big.NewFloat(0)
 
 	for _, src := range s.sources {
 		symbol := src.Token.GetSymbol()
@@ -31,17 +30,15 @@ func (s *ethAssetService) GetAssets(ctx context.Context, address common.Address)
 			s.logger.Error(ctx, "не удалось получить баланс", applog.Err(err, applog.String("symbol", symbol))...)
 			continue
 		}
-		log.Printf("%s balance: %s", symbol, balance.Text('f', 6))
-
+		s.logger.Debug(ctx, "токен: баланс получен", applog.String("symbol", symbol), applog.String("balance", balance.Text('f', 6)))
 		price, err := src.Feed.GetUSDPrice(ctx)
 		if err != nil {
-			log.Printf("Error getting price for %s: %v", symbol, err)
+			s.logger.Error(ctx, "не удалось получить цену", applog.Err(err, applog.String("symbol", symbol))...)
 			continue
 		}
-		log.Printf("%s price: %s", symbol, price.Text('f', 6))
+		s.logger.Debug(ctx, "токен: цена получена", applog.String("symbol", symbol), applog.String("price", price.Text('f', 6)))
 
 		usdValue := new(big.Float).Mul(balance, price)
-		totalUSD.Add(totalUSD, usdValue)
 
 		result = append(result, core.Asset{
 			Symbol:   symbol,

@@ -60,13 +60,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	sources, err := source.BuildAssetSources(cfg.Tokens, client, erc20ABI, feedABI)
+	sources, err := source.BuildAssetSources(ctx, logger, cfg.Tokens, client, erc20ABI, feedABI)
 	if err != nil {
 		logger.Error(ctx, "Ошибка построения токенов и фидов", applog.WithStack(err)...)
 		os.Exit(1)
 	}
 
-	service := source.NewAssetService(sources)
+	service := source.NewAssetService(sources, logger)
 
 	assets, err := service.GetAssets(ctx, address)
 	if err != nil {
@@ -83,5 +83,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	printer.Print(address.Hex(), info, total)
+	printer.Print(info, total)
 }
