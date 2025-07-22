@@ -13,8 +13,7 @@ func NewTablePrinter() *TablePrinter {
 	return &TablePrinter{}
 }
 
-func (p *TablePrinter) Print(address string, assets []AssetInfo, totalUSD *big.Float) {
-	fmt.Printf("Address: %s\n\n", address)
+func (p *TablePrinter) Print(assets []AssetInfo, totalUSD *big.Float) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"TOKEN", "BALANCE", "VALUE (USD)"})
 

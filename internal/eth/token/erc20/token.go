@@ -8,7 +8,6 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"log"
 	"math/big"
 )
 
@@ -54,8 +53,6 @@ func (t ERC20Token) GetBalance(ctx context.Context, holder common.Address) (*big
 	if len(result) == 0 {
 		return nil, errors.New("empty result from balanceOf")
 	}
-
-	log.Printf("Raw balanceOf result for %s: %x", t.symbol, result)
 
 	balance := new(big.Int).SetBytes(result)
 	return util.ScaleDown(balance, int(t.decimals)), nil

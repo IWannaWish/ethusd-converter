@@ -22,6 +22,7 @@ func Load() *Config {
 
 	// загрузка ENV
 	if err := env.Parse(&cfg); err != nil {
+		//todo EC-12 Убрать fatal
 		log.Fatalf("failed to load config from env: %v", err)
 	}
 
