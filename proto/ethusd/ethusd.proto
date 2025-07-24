@@ -1,0 +1,23 @@
+syntax = "syntax3";
+
+package grpc.ethusd.v1;
+
+option go_package = "github.com/IWannaWish/ethusd-converter/proto/gen/ethusd;ethusd";
+
+message GetAssetsRequest {
+  string address = 1;
+}
+
+message Asset {
+  string symbol = 1;
+  string balance = 2;
+  string usd_value = 3;
+}
+
+message GetAssetsResponse{
+  repeated Asset assets =1;
+}
+
+service EthusdConverter {
+  rpc GetAssets(GetAssetsRequest) returns (GetAssetsResponse);
+}
