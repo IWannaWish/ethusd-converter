@@ -3,20 +3,20 @@ package main
 import (
 	"context"
 	"google.golang.org/grpc/reflection"
-	"log"
 	"net"
+	"os"
 
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 
-	applog "github.com/IWannaWish/ethusd-converter/internal/applog"
+	"github.com/IWannaWish/ethusd-converter/internal/applog"
 	"github.com/IWannaWish/ethusd-converter/internal/config"
 	"github.com/IWannaWish/ethusd-converter/internal/eth/abi"
 	"github.com/IWannaWish/ethusd-converter/internal/eth/source"
 
 	apigrpc "github.com/IWannaWish/ethusd-converter/internal/api/grpc"
-	ethusd_pb "github.com/IWannaWish/ethusd-converter/proto/ethusd/gen"
+	ethusdpb "github.com/IWannaWish/ethusd-converter/proto/ethusd/gen"
 
 	"google.golang.org/grpc"
 )
@@ -62,7 +62,7 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	server := apigrpc.NewEthusdGRPCServer(assetService)
-	ethusd_pb.RegisterEthusdConverterServer(grpcServer, server)
+	ethusdpb.RegisterEthusdConverterServer(grpcServer, server)
 	// Включаем рефлексию — нужно для grpcurl
 	reflection.Register(grpcServer)
 	listener, err := net.Listen("tcp", ":50051")
@@ -73,6 +73,7 @@ func main() {
 
 	logger.Info(ctx, "gRPC сервер слушает на :50051")
 	if err := grpcServer.Serve(listener); err != nil {
-		log.Fatalf("Ошибка запуска gRPC сервера: %v", err)
+		logger.Error(ctx, "Ошибка запуска gRPC сервера", applog.WithStack(err)...)
+		os.Exit(1)
 	}
 }

@@ -4,12 +4,12 @@ import (
 	"context"
 
 	"github.com/IWannaWish/ethusd-converter/internal/core"
-	ethusd_pb "github.com/IWannaWish/ethusd-converter/proto/ethusd/gen"
+	ethusdpb "github.com/IWannaWish/ethusd-converter/proto/ethusd/gen"
 	"github.com/ethereum/go-ethereum/common"
 )
 
 type EthusdGRPCServer struct {
-	ethusd_pb.UnimplementedEthusdConverterServer
+	ethusdpb.UnimplementedEthusdConverterServer
 	assetService core.AssetService
 }
 
@@ -19,7 +19,7 @@ func NewEthusdGRPCServer(assetService core.AssetService) *EthusdGRPCServer {
 	}
 }
 
-func (s *EthusdGRPCServer) GetAssets(ctx context.Context, req *ethusd_pb.GetAssetsRequest) (*ethusd_pb.GetAssetsResponse, error) {
+func (s *EthusdGRPCServer) GetAssets(ctx context.Context, req *ethusdpb.GetAssetsRequest) (*ethusdpb.GetAssetsResponse, error) {
 	address := common.HexToAddress(req.GetAddress())
 
 	assets, err := s.assetService.GetAssets(ctx, address)
@@ -27,16 +27,16 @@ func (s *EthusdGRPCServer) GetAssets(ctx context.Context, req *ethusd_pb.GetAsse
 		return nil, err
 	}
 
-	var responseAssets []*ethusd_pb.Asset
+	var responseAssets []*ethusdpb.Asset
 	for _, a := range assets {
-		responseAssets = append(responseAssets, &ethusd_pb.Asset{
+		responseAssets = append(responseAssets, &ethusdpb.Asset{
 			Symbol:   a.Symbol,
 			Balance:  a.Balance,
 			UsdValue: a.USDValue,
 		})
 	}
 
-	return &ethusd_pb.GetAssetsResponse{
+	return &ethusdpb.GetAssetsResponse{
 		Assets: responseAssets,
 	}, nil
 }
