@@ -15,3 +15,9 @@ func ParseUSDValue(raw string) (*big.Float, error) {
 	f, _, err := big.ParseFloat(clean, 10, 256, big.ToNearestEven)
 	return f, err
 }
+func ComputeUSDPrice(usdValue, balance *big.Float) *big.Float {
+	if balance.Cmp(big.NewFloat(0)) == 0 {
+		return big.NewFloat(0)
+	}
+	return new(big.Float).Quo(usdValue, balance)
+}

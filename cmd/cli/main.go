@@ -2,32 +2,28 @@ package main
 
 import (
 	"context"
+	"google.golang.org/grpc/credentials/insecure"
+	"net"
+	"os"
+	"time"
+
 	"github.com/IWannaWish/ethusd-converter/cmd/cli/display"
 	"github.com/IWannaWish/ethusd-converter/internal/applog"
+	"github.com/IWannaWish/ethusd-converter/internal/config"
 	"github.com/IWannaWish/ethusd-converter/internal/core/mapper"
-	"github.com/IWannaWish/ethusd-converter/internal/eth/abi"
-	"github.com/IWannaWish/ethusd-converter/internal/eth/source"
+	ethusdpb "github.com/IWannaWish/ethusd-converter/proto/ethusd/gen"
+
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
-
-	"os"
-
-	"github.com/IWannaWish/ethusd-converter/internal/config"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
+	"google.golang.org/grpc"
 )
 
 func main() {
 	_ = godotenv.Load("config.env")
-
 	cfg := config.Load()
 	logger := applog.NewLogger(cfg)
 	ctx := applog.WithRequestID(context.Background(), uuid.NewString())
-
-	logger.Info(ctx, "ethusd-converter started",
-		applog.String("log_level", cfg.LogLevel),
-		applog.String("module", "main"),
-	)
 
 	if len(os.Args) < 2 {
 		logger.Error(ctx, "Usage: ./ethusd-converter <ethereum_address>")
@@ -39,49 +35,42 @@ func main() {
 		logger.Error(ctx, "Неверный Ethereum адрес", applog.String("address", rawAddr))
 		os.Exit(1)
 	}
-	address := common.HexToAddress(rawAddr)
 
-	client, err := ethclient.Dial(cfg.RPCURL)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	conn, err := grpc.Dial(
+		"localhost:50051",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithContextDialer(func(ctx context.Context, addr string) (net.Conn, error) {
+			var d net.Dialer
+			return d.DialContext(ctx, "tcp", addr)
+		}),
+	)
+
 	if err != nil {
-		logger.Error(ctx, "Ошибка подключения к Ethereum node", applog.WithStack(err)...)
+		logger.Error(ctx, "Ошибка подключения к gRPC-серверу", applog.WithStack(err)...)
 		os.Exit(1)
 	}
-	defer client.Close()
+	defer func() {
+		if err := conn.Close(); err != nil {
+			logger.Error(ctx, "Ошибка при закрытии gRPC-соединения", applog.WithStack(err)...)
+		}
+	}()
 
-	erc20ABI, err := abi.LoadERC20ABI()
+	client := ethusdpb.NewEthusdConverterClient(conn)
+
+	resp, err := client.GetAssets(ctx, &ethusdpb.GetAssetsRequest{Address: rawAddr})
 	if err != nil {
-		logger.Error(ctx, "Ошибка загрузки ERC20 ABI", applog.WithStack(err)...)
-		os.Exit(1)
-	}
-
-	feedABI, err := abi.LoadAggregatorABI()
-	if err != nil {
-		logger.Error(ctx, "Ошибка загрузки Chainlink ABI", applog.WithStack(err)...)
-		os.Exit(1)
-	}
-
-	sources, err := source.BuildAssetSources(ctx, logger, cfg.Tokens, client, erc20ABI, feedABI)
-	if err != nil {
-		logger.Error(ctx, "Ошибка построения токенов и фидов", applog.WithStack(err)...)
-		os.Exit(1)
-	}
-
-	service := source.NewAssetService(sources, logger)
-
-	assets, err := service.GetAssets(ctx, address)
-	if err != nil {
-		logger.Error(ctx, "Ошибка получения активов", applog.WithStack(err)...)
+		logger.Error(ctx, "Ошибка при вызове GetAssets", applog.WithStack(err)...)
 		os.Exit(1)
 	}
 
-	assetMapper := mapper.NewDisplayAssetMapper()
-	printer := display.NewTablePrinter()
-
-	info, total, err := assetMapper.Map(assets)
+	assets, total, err := mapper.FromProtoAssets(resp.Assets)
 	if err != nil {
 		logger.Error(ctx, "Ошибка преобразования активов", applog.WithStack(err)...)
 		os.Exit(1)
 	}
 
-	printer.Print(info, total)
+	display.NewTablePrinter().Print(assets, total)
 }
