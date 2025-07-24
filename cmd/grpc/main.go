@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"google.golang.org/grpc/reflection"
 	"log"
 	"net"
 
@@ -62,7 +63,8 @@ func main() {
 	grpcServer := grpc.NewServer()
 	server := apigrpc.NewEthusdGRPCServer(assetService)
 	ethusd_pb.RegisterEthusdConverterServer(grpcServer, server)
-
+	// Включаем рефлексию — нужно для grpcurl
+	reflection.Register(grpcServer)
 	listener, err := net.Listen("tcp", ":50051")
 	if err != nil {
 		logger.Error(ctx, "Ошибка запуска TCP-листенера", applog.WithStack(err)...)
