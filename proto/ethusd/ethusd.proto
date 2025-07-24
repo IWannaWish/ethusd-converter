@@ -1,4 +1,4 @@
-syntax = "syntax3";
+syntax = "proto3";
 
 package grpc.ethusd.v1;
 
