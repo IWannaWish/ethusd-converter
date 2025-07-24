@@ -41,8 +41,8 @@
 - gRPC + protobuf-плагины:
   ```bash
   go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-  go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-  go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
+  go install google.golang.org/grpc_server/cmd/protoc-gen-go-grpc_server@latest
+  go install github.com/grpc_server-ecosystem/grpc_server-gateway/v2/protoc-gen-grpc_server-gateway@latest
   ```
 
 - Доп. инструменты (опционально):

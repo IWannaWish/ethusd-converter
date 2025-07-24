@@ -260,17 +260,17 @@ func file_api_proto_rawDescGZIP() []byte {
 
 var file_api_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_api_proto_goTypes = []interface{}{
-	(*GetReportRequest)(nil),    // 0: grpc.api.v1.GetReportRequest
-	(*GetReportResponse)(nil),   // 1: grpc.api.v1.GetReportResponse
-	(*File)(nil),                // 2: grpc.api.v1.File
+	(*GetReportRequest)(nil),    // 0: grpc_server.api.v1.GetReportRequest
+	(*GetReportResponse)(nil),   // 1: grpc_server.api.v1.GetReportResponse
+	(*File)(nil),                // 2: grpc_server.api.v1.File
 	(*timestamp.Timestamp)(nil), // 3: google.protobuf.Timestamp
 }
 var file_api_proto_depIdxs = []int32{
-	3, // 0: grpc.api.v1.GetReportRequest.date:type_name -> google.protobuf.Timestamp
-	3, // 1: grpc.api.v1.GetReportResponse.date:type_name -> google.protobuf.Timestamp
-	2, // 2: grpc.api.v1.GetReportResponse.files:type_name -> grpc.api.v1.File
-	0, // 3: grpc.api.v1.Api.GetReport:input_type -> grpc.api.v1.GetReportRequest
-	1, // 4: grpc.api.v1.Api.GetReport:output_type -> grpc.api.v1.GetReportResponse
+	3, // 0: grpc_server.api.v1.GetReportRequest.date:type_name -> google.protobuf.Timestamp
+	3, // 1: grpc_server.api.v1.GetReportResponse.date:type_name -> google.protobuf.Timestamp
+	2, // 2: grpc_server.api.v1.GetReportResponse.files:type_name -> grpc_server.api.v1.File
+	0, // 3: grpc_server.api.v1.Api.GetReport:input_type -> grpc_server.api.v1.GetReportRequest
+	1, // 4: grpc_server.api.v1.Api.GetReport:output_type -> grpc_server.api.v1.GetReportResponse
 	4, // [4:5] is the sub-list for method output_type
 	3, // [3:4] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name

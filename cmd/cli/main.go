@@ -14,7 +14,6 @@ import (
 	ethusdpb "github.com/IWannaWish/ethusd-converter/proto/ethusd/gen"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 )
@@ -23,7 +22,7 @@ func main() {
 	_ = godotenv.Load("config.env")
 	cfg := config.Load()
 	logger := applog.NewLogger(cfg)
-	ctx := applog.WithRequestID(context.Background(), uuid.NewString())
+	ctx := context.Background()
 
 	if len(os.Args) < 2 {
 		logger.Error(ctx, "Usage: ./ethusd-converter <ethereum_address>")
