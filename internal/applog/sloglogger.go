@@ -3,6 +3,7 @@ package applog
 import (
 	"context"
 	"github.com/IWannaWish/ethusd-converter/internal/config"
+	"github.com/IWannaWish/ethusd-converter/internal/requestid"
 	"log/slog"
 	"os"
 	"strings"
@@ -57,7 +58,7 @@ func (s SlogLogger) With(args ...Field) Logger {
 
 func toArgs(ctx context.Context, fields []Field) []any {
 	args := make([]any, 0, len(fields)*2)
-	if reqID, ok := RequestIDFromContext(ctx); ok {
+	if reqID, ok := requestid.ReqIDFromContext(ctx); ok {
 		args = append(args, "request_id", reqID)
 	}
 	for _, f := range fields {

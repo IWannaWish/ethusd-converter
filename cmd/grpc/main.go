@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 
 	"github.com/IWannaWish/ethusd-converter/internal/applog"
@@ -15,7 +14,7 @@ import (
 	"github.com/IWannaWish/ethusd-converter/internal/eth/abi"
 	"github.com/IWannaWish/ethusd-converter/internal/eth/source"
 
-	apigrpc "github.com/IWannaWish/ethusd-converter/internal/api/grpc"
+	"github.com/IWannaWish/ethusd-converter/internal/api/grpc_server"
 	ethusdpb "github.com/IWannaWish/ethusd-converter/proto/ethusd/gen"
 
 	"google.golang.org/grpc"
@@ -26,10 +25,10 @@ func main() {
 
 	cfg := config.Load()
 	logger := applog.NewLogger(cfg)
-	ctx := applog.WithRequestID(context.Background(), uuid.NewString())
+	ctx := context.Background()
 
 	logger.Info(ctx, "gRPC-сервер запускается...",
-		applog.String("module", "grpc"),
+		applog.String("module", "grpc_server"),
 		applog.String("rpc_url", cfg.RPCURL),
 	)
 
@@ -60,8 +59,8 @@ func main() {
 
 	assetService := source.NewAssetService(sources, logger)
 
-	grpcServer := grpc.NewServer()
-	server := apigrpc.NewEthusdGRPCServer(assetService)
+	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(grpc_server.RequestIDInterceptor(logger)))
+	server := grpc_server.NewEthusdGRPCServer(assetService)
 	ethusdpb.RegisterEthusdConverterServer(grpcServer, server)
 	// Включаем рефлексию — нужно для grpcurl
 	reflection.Register(grpcServer)

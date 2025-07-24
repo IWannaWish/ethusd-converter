@@ -8,7 +8,7 @@ import (
 )
 
 func TestHealthCheck_Check(t *testing.T) {
-	// Initialize the HealthCheck server
+	// Initialize the HealthCheck grpc_server
 	grpcHealth := HealthCheck{}
 
 	// Create a context and an empty HealthCheckRequest

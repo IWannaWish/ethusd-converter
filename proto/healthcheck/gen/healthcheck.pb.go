@@ -116,7 +116,7 @@ type HealthCheckResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Status HealthCheckResponse_ServingStatus `protobuf:"varint,1,opt,name=status,proto3,enum=grpc.healthcheck.v1.HealthCheckResponse_ServingStatus" json:"status,omitempty"`
+	Status HealthCheckResponse_ServingStatus `protobuf:"varint,1,opt,name=status,proto3,enum=grpc_server.healthcheck.v1.HealthCheckResponse_ServingStatus" json:"status,omitempty"`
 }
 
 func (x *HealthCheckResponse) Reset() {
@@ -207,14 +207,14 @@ func file_healthcheck_proto_rawDescGZIP() []byte {
 var file_healthcheck_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_healthcheck_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_healthcheck_proto_goTypes = []interface{}{
-	(HealthCheckResponse_ServingStatus)(0), // 0: grpc.healthcheck.v1.HealthCheckResponse.ServingStatus
-	(*HealthCheckRequest)(nil),             // 1: grpc.healthcheck.v1.HealthCheckRequest
-	(*HealthCheckResponse)(nil),            // 2: grpc.healthcheck.v1.HealthCheckResponse
+	(HealthCheckResponse_ServingStatus)(0), // 0: grpc_server.healthcheck.v1.HealthCheckResponse.ServingStatus
+	(*HealthCheckRequest)(nil),             // 1: grpc_server.healthcheck.v1.HealthCheckRequest
+	(*HealthCheckResponse)(nil),            // 2: grpc_server.healthcheck.v1.HealthCheckResponse
 }
 var file_healthcheck_proto_depIdxs = []int32{
-	0, // 0: grpc.healthcheck.v1.HealthCheckResponse.status:type_name -> grpc.healthcheck.v1.HealthCheckResponse.ServingStatus
-	1, // 1: grpc.healthcheck.v1.Health.Check:input_type -> grpc.healthcheck.v1.HealthCheckRequest
-	2, // 2: grpc.healthcheck.v1.Health.Check:output_type -> grpc.healthcheck.v1.HealthCheckResponse
+	0, // 0: grpc_server.healthcheck.v1.HealthCheckResponse.status:type_name -> grpc_server.healthcheck.v1.HealthCheckResponse.ServingStatus
+	1, // 1: grpc_server.healthcheck.v1.Health.Check:input_type -> grpc_server.healthcheck.v1.HealthCheckRequest
+	2, // 2: grpc_server.healthcheck.v1.Health.Check:output_type -> grpc_server.healthcheck.v1.HealthCheckResponse
 	2, // [2:3] is the sub-list for method output_type
 	1, // [1:2] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

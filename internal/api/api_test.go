@@ -14,7 +14,7 @@ import (
 )
 
 func TestApi_GetReport_ValidRequest(t *testing.T) {
-	// Initialize the API server
+	// Initialize the API grpc_server
 	apiServer := Api{}
 
 	// Create a valid request
@@ -47,7 +47,7 @@ func TestApi_GetReport_ValidRequest(t *testing.T) {
 }
 
 func TestApi_GetReport_InvalidRequest(t *testing.T) {
-	// Initialize the API server
+	// Initialize the API grpc_server
 	apiServer := Api{}
 
 	// Create an invalid request (name doesn't start with "Report")
