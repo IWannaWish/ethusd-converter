@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package grpc.ethusd.v1;
 
-option go_package = "github.com/IWannaWish/ethusd-converter/proto/gen/ethusd;ethusd";
+option go_package = "github.com/IWannaWish/ethusd-converter/proto/ethusd/gen;ethusd";
 
 message GetAssetsRequest {
   string address = 1;
