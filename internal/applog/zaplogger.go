@@ -53,7 +53,7 @@ func (z *ZapLogger) With(args ...Field) Logger {
 func (z *ZapLogger) toZapFields(ctx context.Context, fields []Field) []zap.Field {
 	zapFields := make([]zap.Field, 0, len(fields)+1)
 
-	if reqID, ok := requestid.RequestIDFromContext(ctx); ok {
+	if reqID, ok := requestid.ReqIDFromContext(ctx); ok {
 		zapFields = append(zapFields, zap.String("request_id", reqID))
 	}
 

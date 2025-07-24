@@ -28,7 +28,7 @@ func RequestIDInterceptor(logger applog.Logger) grpc.UnaryServerInterceptor {
 		if rid == "" {
 			rid = uuid.NewString()
 		}
-		ctx = requestid.WithRequestID(ctx, rid)
+		ctx = requestid.WithReqID(ctx, rid)
 		logger.Debug(ctx, "requestID установлен через interceptor", applog.String("request_id", rid))
 
 		return handler(ctx, req)
