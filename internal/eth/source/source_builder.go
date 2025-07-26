@@ -5,6 +5,7 @@ import (
 	"github.com/IWannaWish/ethusd-converter/internal/applog"
 	"github.com/IWannaWish/ethusd-converter/internal/config"
 	"github.com/IWannaWish/ethusd-converter/internal/core"
+	"github.com/IWannaWish/ethusd-converter/internal/core/pricestore"
 	"github.com/IWannaWish/ethusd-converter/internal/eth/chainlink"
 	"github.com/IWannaWish/ethusd-converter/internal/eth/token/erc20"
 	"github.com/IWannaWish/ethusd-converter/internal/eth/token/eth"
@@ -15,7 +16,7 @@ import (
 
 type AssetSource struct {
 	Token core.TokenBalanceFetcher
-	Feed  chainlink.PriceFeed
+	Feed  pricestore.LruStore
 }
 
 func BuildAssetSources(
