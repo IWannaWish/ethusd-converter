@@ -14,7 +14,6 @@ type LruStore struct {
 	cache    *lru.Cache[string, *big.Float]
 	feed     chainlink.PriceFeed
 	interval time.Duration
-	ctx      context.Context
 }
 
 func NewLruStore(feed chainlink.PriceFeed, capacity int, logger applog.Logger, interval time.Duration) *LruStore {
@@ -29,19 +28,21 @@ func NewLruStore(feed chainlink.PriceFeed, capacity int, logger applog.Logger, i
 
 func (l LruStore) Get(symbol string) (*big.Float, bool) {
 
+	ctx := context.Background()
+
 	if exist := l.cache.Contains(symbol); exist {
-		l.logger.Debug(l.ctx, "Значение взято из кэша", applog.String("symbol", symbol))
+		l.logger.Debug(ctx, "Значение взято из кэша", applog.String("symbol", symbol))
 		return l.cache.Get(symbol)
 	}
 
-	price, err := l.feed.GetUSDPrice(l.ctx)
+	price, err := l.feed.GetUSDPrice(ctx)
 	if err != nil {
 		l.logger.Error(context.Background(), "Не удалось получить значение", applog.WithStack(err)...)
 		return nil, false
 	}
 
 	l.cache.Add(symbol, price)
-	l.logger.Debug(l.ctx, "Значение взято из chainlink", applog.String("symbol", symbol))
+	l.logger.Debug(ctx, "Значение взято из chainlink", applog.String("symbol", symbol))
 	return l.cache.Get(symbol)
 }
 
@@ -64,11 +65,12 @@ func (l LruStore) StartBackgroundAdapter(ctx context.Context) error {
 
 func (l LruStore) updateAll() {
 	keys := l.cache.Keys()
+	ctx := context.Background()
 
 	for _, key := range keys {
-		price, err := l.feed.GetUSDPrice(l.ctx)
+		price, err := l.feed.GetUSDPrice(ctx)
 		if err != nil {
-			l.logger.Error(l.ctx, "Не удалось получить цену", applog.WithStack(err)...)
+			l.logger.Error(ctx, "Не удалось получить цену", applog.WithStack(err)...)
 			continue
 		}
 		l.cache.Add(key, price)

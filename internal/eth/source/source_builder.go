@@ -16,7 +16,7 @@ import (
 
 type AssetSource struct {
 	Token core.TokenBalanceFetcher
-	Feed  pricestore.LruStore
+	Feed  *pricestore.LruStore
 }
 
 func BuildAssetSources(
@@ -24,6 +24,7 @@ func BuildAssetSources(
 	logger applog.Logger,
 	tokenList []config.TokenConfig,
 	client *ethclient.Client,
+	conf *config.Config,
 	erc20ABI abi.ABI,
 	feedABI abi.ABI,
 ) ([]AssetSource, error) {
@@ -36,6 +37,7 @@ func BuildAssetSources(
 			common.HexToAddress(entry.PriceFeedAddress),
 			feedABI,
 		)
+		feedStore := pricestore.NewLruStore(feed, conf.LRUCacheSize, logger, conf.PriceRefreshInterval)
 
 		var token core.TokenBalanceFetcher
 
@@ -57,7 +59,7 @@ func BuildAssetSources(
 
 		sources = append(sources, AssetSource{
 			Token: token,
-			Feed:  feed,
+			Feed:  feedStore,
 		})
 	}
 
