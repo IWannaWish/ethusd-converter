@@ -5,6 +5,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"log"
 	"os"
+	"time"
 )
 
 type Config struct {
@@ -13,6 +14,9 @@ type Config struct {
 
 	LogLevel string `env:"LOG_LEVEL" envDefault:"info"`
 	UseZap   bool   `env:"LOG_DEV" envDefault:"false"`
+
+	LRUCacheSize         int           `env:"LRU_CACHE_SIZE" default:"100"`
+	PriceRefreshInterval time.Duration `env:"PRICE_REFRESH_INTERVAL" default:"5s"`
 
 	Tokens []TokenConfig `yaml:"tokens"`
 }

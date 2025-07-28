@@ -51,7 +51,7 @@ func main() {
 		return
 	}
 
-	sources, err := source.BuildAssetSources(ctx, logger, cfg.Tokens, client, erc20ABI, feedABI)
+	sources, err := source.BuildAssetSources(ctx, logger, cfg.Tokens, client, cfg, erc20ABI, feedABI)
 	if err != nil {
 		logger.Error(ctx, "Ошибка построения источников активов", applog.WithStack(err)...)
 		return

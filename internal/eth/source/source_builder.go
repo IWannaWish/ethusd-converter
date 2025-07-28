@@ -5,6 +5,7 @@ import (
 	"github.com/IWannaWish/ethusd-converter/internal/applog"
 	"github.com/IWannaWish/ethusd-converter/internal/config"
 	"github.com/IWannaWish/ethusd-converter/internal/core"
+	"github.com/IWannaWish/ethusd-converter/internal/core/pricestore"
 	"github.com/IWannaWish/ethusd-converter/internal/eth/chainlink"
 	"github.com/IWannaWish/ethusd-converter/internal/eth/token/erc20"
 	"github.com/IWannaWish/ethusd-converter/internal/eth/token/eth"
@@ -15,7 +16,7 @@ import (
 
 type AssetSource struct {
 	Token core.TokenBalanceFetcher
-	Feed  chainlink.PriceFeed
+	Feed  pricestore.PriceStore
 }
 
 func BuildAssetSources(
@@ -23,11 +24,17 @@ func BuildAssetSources(
 	logger applog.Logger,
 	tokenList []config.TokenConfig,
 	client *ethclient.Client,
+	conf *config.Config,
 	erc20ABI abi.ABI,
 	feedABI abi.ABI,
 ) ([]AssetSource, error) {
 
 	var sources []AssetSource
+	cache := pricestore.NewLruStore(conf.LRUCacheSize, logger, conf.PriceRefreshInterval)
+	logger.Info(ctx, "инициализация общего кэша цен завершена", applog.Int("tokens", len(tokenList)))
+	if err := cache.StartBackgroundUpdater(ctx); err != nil {
+		logger.Error(ctx, "не удалось запустить фоновое обновление цен", applog.Err(err)...)
+	}
 
 	for _, entry := range tokenList {
 		feed := chainlink.NewChainlinkFeed(
@@ -35,6 +42,7 @@ func BuildAssetSources(
 			common.HexToAddress(entry.PriceFeedAddress),
 			feedABI,
 		)
+		cache.RegisterFeed(entry.Symbol, feed)
 
 		var token core.TokenBalanceFetcher
 
@@ -56,7 +64,7 @@ func BuildAssetSources(
 
 		sources = append(sources, AssetSource{
 			Token: token,
-			Feed:  feed,
+			Feed:  cache,
 		})
 	}
 
