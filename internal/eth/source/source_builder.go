@@ -16,7 +16,7 @@ import (
 
 type AssetSource struct {
 	Token core.TokenBalanceFetcher
-	Feed  *pricestore.LruStore
+	Feed  pricestore.PriceStore
 }
 
 func BuildAssetSources(
@@ -30,6 +30,11 @@ func BuildAssetSources(
 ) ([]AssetSource, error) {
 
 	var sources []AssetSource
+	cache := pricestore.NewLruStore(conf.LRUCacheSize, logger, conf.PriceRefreshInterval)
+	logger.Info(ctx, "инициализация общего кэша цен завершена", applog.Int("tokens", len(tokenList)))
+	if err := cache.StartBackgroundUpdater(ctx); err != nil {
+		logger.Error(ctx, "не удалось запустить фоновое обновление цен", applog.Err(err)...)
+	}
 
 	for _, entry := range tokenList {
 		feed := chainlink.NewChainlinkFeed(
@@ -37,7 +42,7 @@ func BuildAssetSources(
 			common.HexToAddress(entry.PriceFeedAddress),
 			feedABI,
 		)
-		feedStore := pricestore.NewLruStore(feed, conf.LRUCacheSize, logger, conf.PriceRefreshInterval)
+		cache.RegisterFeed(entry.Symbol, feed)
 
 		var token core.TokenBalanceFetcher
 
@@ -59,7 +64,7 @@ func BuildAssetSources(
 
 		sources = append(sources, AssetSource{
 			Token: token,
-			Feed:  feedStore,
+			Feed:  cache,
 		})
 	}
 

@@ -6,6 +6,6 @@ import (
 )
 
 type PriceStore interface {
-	Get(symbol string) (*big.Float, bool)
-	StartBackgroundAdapter(ctx context.Context) error
+	Get(ctx context.Context, symbol string) (*big.Float, bool)
+	StartBackgroundUpdater(ctx context.Context) error
 }

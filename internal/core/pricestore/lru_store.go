@@ -12,32 +12,34 @@ import (
 type LruStore struct {
 	logger   applog.Logger
 	cache    *lru.Cache[string, *big.Float]
-	feed     chainlink.PriceFeed
 	interval time.Duration
+	feeds    map[string]chainlink.PriceFeed
 }
 
-func NewLruStore(feed chainlink.PriceFeed, capacity int, logger applog.Logger, interval time.Duration) *LruStore {
+func NewLruStore(capacity int, logger applog.Logger, interval time.Duration) *LruStore {
 	var c = lru.NewCache[string, *big.Float](capacity)
 	return &LruStore{
-		feed:     feed,
 		logger:   logger,
 		cache:    c,
 		interval: interval,
 	}
 }
 
-func (l LruStore) Get(symbol string) (*big.Float, bool) {
-
-	ctx := context.Background()
-
-	if exist := l.cache.Contains(symbol); exist {
+func (l *LruStore) Get(ctx context.Context, symbol string) (*big.Float, bool) {
+	if l.cache.Contains(symbol) {
 		l.logger.Debug(ctx, "Значение взято из кэша", applog.String("symbol", symbol))
 		return l.cache.Get(symbol)
 	}
 
-	price, err := l.feed.GetUSDPrice(ctx)
+	feed, ok := l.feeds[symbol]
+	if !ok || feed == nil {
+		l.logger.Error(ctx, "Feed не найден", applog.String("symbol", symbol))
+		return nil, false
+	}
+
+	price, err := feed.GetUSDPrice(ctx)
 	if err != nil {
-		l.logger.Error(context.Background(), "Не удалось получить значение", applog.WithStack(err)...)
+		l.logger.Error(ctx, "Не удалось получить цену из Chainlink", applog.WithStack(err)...)
 		return nil, false
 	}
 
@@ -46,7 +48,7 @@ func (l LruStore) Get(symbol string) (*big.Float, bool) {
 	return l.cache.Get(symbol)
 }
 
-func (l LruStore) StartBackgroundAdapter(ctx context.Context) error {
+func (l *LruStore) StartBackgroundUpdater(ctx context.Context) error {
 	ticker := time.NewTicker(l.interval)
 
 	go func() {
@@ -63,17 +65,30 @@ func (l LruStore) StartBackgroundAdapter(ctx context.Context) error {
 	return nil
 }
 
-func (l LruStore) updateAll() {
+func (l *LruStore) updateAll() {
 	keys := l.cache.Keys()
 	ctx := context.Background()
 
 	for _, key := range keys {
-		price, err := l.feed.GetUSDPrice(ctx)
+		feed, ok := l.feeds[key]
+		if !ok || feed == nil {
+			l.logger.Error(ctx, "Feed не найден во время обновления", applog.String("symbol", key))
+			continue
+		}
+
+		price, err := feed.GetUSDPrice(ctx)
 		if err != nil {
-			l.logger.Error(ctx, "Не удалось получить цену", applog.WithStack(err)...)
+			l.logger.Error(ctx, "Не удалось обновить цену", applog.WithStack(err)...)
 			continue
 		}
 		l.cache.Add(key, price)
-		l.logger.Debug(context.Background(), "price updated in background", applog.String("symbol", key))
+		l.logger.Debug(ctx, "price updated in background", applog.String("symbol", key))
 	}
+}
+
+func (l *LruStore) RegisterFeed(symbol string, feed chainlink.PriceFeed) {
+	if l.feeds == nil {
+		l.feeds = make(map[string]chainlink.PriceFeed)
+	}
+	l.feeds[symbol] = feed
 }
