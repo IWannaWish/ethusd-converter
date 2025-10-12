@@ -40,6 +40,7 @@ Thumbs.db
 # Environment variables
 .env
 .env.local
+config.env
 
 # Temporary files
 *.tmp
@@ -65,3 +66,33 @@ override.tf.json
 
 /api
 /api_client
+
+logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dev-debug.log
+# Dependency directories
+node_modules/
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+# OS specific
+
+# Task files
+# tasks.json
+# tasks/
+
+# Cursor IDE settings
+.cursor/
+
+# Task Master settings
+.taskmaster/
+
+# Environment example files
+.env.example
